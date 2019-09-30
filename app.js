@@ -11,6 +11,7 @@ const {Builder, By, Key, until} = require('selenium-webdriver');
       let loginField = await driver.wait(until.elementLocated(By.id('passp-field-login')), 10000);
       await driver.wait(until.elementIsVisible(loginField), 10000);
       await loginField.sendKeys('testmalakhov2019@yandex.ru', Key.RETURN);
+      
       let passField = await driver.wait(until.elementLocated(By.id('passp-field-passwd')), 10000);
       await driver.wait(until.elementIsVisible(passField), 10000);
       await passField.sendKeys('At9632147', Key.RETURN);
