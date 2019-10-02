@@ -8,12 +8,14 @@ const expect = chai.expect;
 (async function() {
   let driver = await new Builder().forBrowser('chrome').build();
   await driver.manage().window().maximize();
-  var profileBtn;
-  var loginField;
-  var passField;
-  var profileName;
+  let profileBtn;
+  let loginField;
+  let passField;
+  let profileName;
+  
   describe('Beru.ru authorization', function () {
-    this.timeout(0);
+    this.timeout(0);  //отключаем таймауты (2 секунды) для тестов
+    
     it('Check the page opens successfully.', async function () {
       await driver.get('https://beru.ru/');
       let title = await driver.getTitle();
