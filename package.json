@@ -4,7 +4,7 @@
   "description": "",
   "main": "app.js",
   "scripts": {
-    "test": "mocha --delay",
+    "test": "mocha --delay --bail",
     "start": "node app.js"
   },
   "author": "",
