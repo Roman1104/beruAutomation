@@ -9,7 +9,6 @@ const expect = chai.expect;
   let driver = await new Builder().forBrowser('chrome').build();
   await driver.manage().window().maximize();
   
-  
   describe('Beru.ru authorization', function () {
     this.timeout(0);  //отключаем таймауты (2 секунды) для тестов
     let profileBtn;
@@ -347,8 +346,14 @@ const expect = chai.expect;
         await city.click();              
         let inputField = await driver.findElement(By.xpath('//div[@class="_1U2ErCeoqP"]//input[@class="_2JDvXzYsUI"]'));
         inputField.sendKeys('хвал');
-        let suggestsList = await driver.wait(until.elementLocated(By.id('react-autowhatever-region')), 30000, 'Quick suggests list is not shown');
-        await driver.wait(until.elementIsVisible(suggestsList), 2000, 'Cities suggests list is not visible');
+        let suggestsList = await driver.findElements(By.id('react-autowhatever-region'));
+        should.equal(suggestsList.length, 1, 'Zero or more than one suggests list is located');
+        await driver.wait(until.elementIsVisible(suggestsList[0]), 2000, 'Cities suggests list is not visible');
+        let suggests = await driver.findElements(By.className('_229JDbp_Z8'));
+        for (i = 0; i < suggests.length; i++) {
+          let optionText = await suggests[i].getText();
+          optionText.toLowerCase().should.contain("хвал".toLowerCase(), "Invalid city option is suggested");
+        }
 
       } catch(err) {
         await driver.get('https://beru.ru/');
