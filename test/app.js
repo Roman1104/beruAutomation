@@ -12,7 +12,7 @@ describe('Beru.ru authorization flow', function () {
   let loginField;
   let passField;
   let profileName;
-
+  
   before(async function () {
     driver = await new Builder().forBrowser('chrome').build();
     await driver.manage().window().maximize();
@@ -519,4 +519,75 @@ describe('City selection flow', function () {
         //return to initial state
         await driver.get('https://beru.ru/');
   });
+
+  it('Check there are no suggests when incorrect city is entered', 
+      async function() {
+        await driver.get('https://beru.ru/');
+        try {
+          let city = 
+              await driver.findElement(
+                  By.xpath(
+                    '//div[@class="EsYwYP7LNa"]/span[@class="-soJAyMJBd"]/span[@class="_2XJ6yiRp5w"]'));
+          await city.click();              
+          
+          let inputField = 
+              await driver.findElement(
+                  By.xpath(
+                      '//div[@class="_1U2ErCeoqP"]//input[@class="_2JDvXzYsUI"]'));
+          await inputField.sendKeys(Key.CONTROL, "a", Key.NULL, Key.BACK_SPACE);
+          
+          let query = ['й', 'ц', 'у', 'к', 'е', 'н'];
+          for (i = 0; i < query.length; i++) {
+            await inputField.sendKeys(query[i]);
+            await driver.sleep(30);
+          }
+          
+          
+          let suggests = 
+              await driver.findElements(By.className('_229JDbp_Z8'));
+          suggests.length.should.equal(0, 'Unexpected suggests are displayed');
+        } catch(err) {
+          await driver.get('https://beru.ru/');
+          assert.fail(err);
+        }
+
+        //return to initial state
+        await driver.get('https://beru.ru/');
+    });
+
+    it('Check "Delete" button erases input field', async function() {
+      await driver.get('https://beru.ru/');
+        try {
+          let city = 
+              await driver.findElement(
+                  By.xpath(
+                    '//div[@class="EsYwYP7LNa"]/span[@class="-soJAyMJBd"]/span[@class="_2XJ6yiRp5w"]'));
+          await city.click();              
+          let inputField = 
+              await driver.findElement(
+                  By.xpath(
+                      '//div[@class="_1U2ErCeoqP"]//input[@class="_2JDvXzYsUI"]'));
+          await inputField.sendKeys(Key.CONTROL, 'a', 
+                              Key.NULL, Key.BACK_SPACE, 'тест');
+                              
+          let inputContainer = 
+              await driver.findElement(By.className('_8iW7gwBP58'));
+          let cssWidth = await inputContainer.getCssValue('width');
+          let containerWidth = cssWidth.match(/\d+/)[0];
+          const actions = driver.actions({bridge: true});
+          await actions.move({
+                          x: Math.floor(containerWidth / 2 - 22),
+                          y: 0, 
+                          duration: 500, 
+                          origin: inputContainer}).click().perform();
+          let fieldValue = await inputField.getAttribute('value');
+          fieldValue.should.equal('', 'The input field is not cleared');
+        } catch(err) {
+          await driver.get('https://beru.ru/');
+          assert.fail(err);
+        }
+
+        //return to initial state
+        await driver.get('https://beru.ru/');
+    });
 });
