@@ -1,6 +1,6 @@
-const {Builder, By, Key, until} = require('selenium-webdriver');
+const { Builder, By, Key, until } = require('selenium-webdriver');
 const mocha = require('mocha');
-const chai = require('chai'); 
+const chai = require('chai');
 const assert = chai.assert;
 const should = chai.should();
 const expect = chai.expect;
@@ -147,6 +147,7 @@ describe('Beru.ru authorization flow', function () {
     try {
       let curUrl = await driver.getCurrentUrl();
       curUrl.should.contain('beru.ru','Failed to redirect back to the site');
+      
       profileBtn = 
           await driver.wait(until.elementLocated(By.className('_3odNv2Dw2n')),
                           10000, 'Profile button not found');
@@ -164,8 +165,7 @@ describe('Beru.ru authorization flow', function () {
       profileName = await profileTitle.getText();
       profileName.should.equal('Automation Test Malakhov 2019', 
                           'Profile name doesn\'t match:');
-    }
-    catch(err) {
+    } catch(err) {
       await driver.get(
         'https://beru.ru/logout?retpath=https%3A%2F%2Fberu.ru%2F%3Floggedin%3D1');
       await driver.get('https://passport.yandex.ru/');
@@ -427,167 +427,465 @@ describe('City selection flow', function () {
   after(async function () {
     await driver.close();
   });
-  
+
   it('Check the city input field appears', async function () {
     await driver.get('https://beru.ru/');
-    
+
     try {
-      let city = 
+      let city =
         await driver.findElement(
           By.xpath(
             '//div[@class="EsYwYP7LNa"]/span[@class="-soJAyMJBd"]/span[@class="_2XJ6yiRp5w"]'));
-      await city.click();      
-      
-      let inputFields = 
-          await driver.findElements(
-                By.xpath(
-                  '//div[@class="_1U2ErCeoqP"]//input[@class="_2JDvXzYsUI"]'));
-      should.equal(inputFields.length, 1, 
-              'Zero or more than one city input field is found');
+      await city.click();
+
+      let inputFields =
+        await driver.findElements(
+          By.xpath(
+            '//div[@class="_1U2ErCeoqP"]//input[@class="_2JDvXzYsUI"]'));
+      should.equal(inputFields.length, 1,
+        'Zero or more than one city input field is found');
       let cityInput = inputFields[0];
       let isVisible = await cityInput.isDisplayed();
-      let isEditable =  await cityInput.isEnabled();
+      let isEditable = await cityInput.isEnabled();
       isVisible.should.equal(true, 'The city input field is invisible');
       isEditable.should.equal(true, 'The city input field can\'t be edited');
-    } catch(err) {
+    } catch (err) {
       await driver.get('https://beru.ru/');
       assert.fail(err);
     }
 
     //return to initial state
-    await driver.get('https://beru.ru/');      
+    await driver.get('https://beru.ru/');
   });
 
-  it('Check the city is changed when user clicks the suggested option', 
-      async function () {
-        await driver.get('https://beru.ru/');
-        try {
-          let city = 
-              await driver.findElement(
-                  By.xpath(
-                    '//div[@class="EsYwYP7LNa"]/span[@class="-soJAyMJBd"]/span[@class="_2XJ6yiRp5w"]'));
-          await city.click();              
-          
-          let inputField = 
-              await driver.findElement(
-                  By.xpath(
-                      '//div[@class="_1U2ErCeoqP"]//input[@class="_2JDvXzYsUI"]'));
-          await inputField.sendKeys(Key.CONTROL, "a", Key.NULL, Key.BACK_SPACE);
-          
-          let query = ['х', 'в', 'а', 'л', 'ы', 'н', 'с', 'к'];
-          for (i = 0; i < query.length; i++) {
-            await inputField.sendKeys(query[i]);
-            await driver.sleep(30);
-          }
-          
-          
-          let suggest = 
-              await driver.wait(until.elementLocated(
-                      By.xpath(
-                        '//div[@class="_229JDbp_Z8" and text()="Хвалынск"]')),
-                      2000, 'Quick suggests aren\'t found');
-          await driver.wait(until.elementIsVisible(suggest), 
-                          3000, 'Cities suggests list is not visible');
-          await suggest.click();
-          
-          let okBtn = 
-              await driver.wait(until.elementLocated(
-                      By.xpath(
-                        '//span[@class="_2w0qPDYwej" and text()="Хорошо"]')),
-                      4000, 'OK button is not found');
-          await driver.wait(until.elementIsVisible(okBtn), 
-                          4000, 'OK button is not visible');
-          okBtn.click();
-          
-          await driver.sleep(500);
-          city = await driver.wait(
-            until.elementLocated(
-              By.xpath(
-                '//div[@class="EsYwYP7LNa"]/span[@class="-soJAyMJBd"]/span[@class="_2XJ6yiRp5w"]')),
-              5000, "Failed to locate new city value");
-          await driver.wait(until.elementIsVisible(city), 
+  it('Check the city is changed when user clicks the suggested option',
+    async function () {
+      await driver.get('https://beru.ru/');
+      try {
+        let city =
+          await driver.findElement(
+            By.xpath(
+              '//div[@class="EsYwYP7LNa"]/span[@class="-soJAyMJBd"]/span[@class="_2XJ6yiRp5w"]'));
+        await city.click();
+
+        let inputField =
+          await driver.findElement(
+            By.xpath(
+              '//div[@class="_1U2ErCeoqP"]//input[@class="_2JDvXzYsUI"]'));
+        await inputField.sendKeys(Key.CONTROL, "a", Key.NULL, Key.BACK_SPACE);
+
+        let query = ['х', 'в', 'а', 'л', 'ы', 'н', 'с', 'к'];
+        for (i = 0; i < query.length; i++) {
+          await inputField.sendKeys(query[i]);
+          await driver.sleep(30);
+        }
+
+
+        let suggest =
+          await driver.wait(until.elementLocated(
+            By.xpath(
+              '//div[@class="_229JDbp_Z8" and text()="Хвалынск"]')),
+              2000, 'Quick suggests aren\'t found');
+        await driver.wait(until.elementIsVisible(suggest),
+                      3000, 'Cities suggests list is not visible');
+        await suggest.click();
+
+        let okBtn =
+          await driver.wait(until.elementLocated(
+            By.xpath(
+              '//span[@class="_2w0qPDYwej" and text()="Хорошо"]')),
+              4000, 'OK button is not found');
+        await driver.wait(until.elementIsVisible(okBtn),
+                       4000, 'OK button is not visible');
+        await okBtn.click();
+
+        await driver.sleep(500);
+        city = await driver.wait(
+          until.elementLocated(
+            By.xpath(
+              '//div[@class="EsYwYP7LNa"]/span[@class="-soJAyMJBd"]/span[@class="_2XJ6yiRp5w"]')),
+            5000, "Failed to locate new city value");
+        await driver.wait(until.elementIsVisible(city),
                           3000, 'City is not visible');
-          
-          let cityName = await city.getText();
-          cityName.should.equal('Хвалынск', 
-                            'The delivery city was changed incorrectly');
-        } catch(err) {
-          await driver.get('https://beru.ru/');
-          assert.fail(err);
-        }
 
-        //return to initial state
+        let cityName = await city.getText();
+        cityName.should.equal('Хвалынск',
+          'The delivery city was changed incorrectly');
+      } catch (err) {
+        await driver.manage().deleteAllCookies();
         await driver.get('https://beru.ru/');
-  });
+        assert.fail(err);
+      }
 
-  it('Check there are no suggests when incorrect city is entered', 
-      async function() {
-        await driver.get('https://beru.ru/');
-        try {
-          let city = 
-              await driver.findElement(
-                  By.xpath(
-                    '//div[@class="EsYwYP7LNa"]/span[@class="-soJAyMJBd"]/span[@class="_2XJ6yiRp5w"]'));
-          await city.click();              
-          
-          let inputField = 
-              await driver.findElement(
-                  By.xpath(
-                      '//div[@class="_1U2ErCeoqP"]//input[@class="_2JDvXzYsUI"]'));
-          await inputField.sendKeys(Key.CONTROL, "a", Key.NULL, Key.BACK_SPACE);
-          
-          let query = ['й', 'ц', 'у', 'к', 'е', 'н'];
-          for (i = 0; i < query.length; i++) {
-            await inputField.sendKeys(query[i]);
-            await driver.sleep(30);
-          }
-          
-          
-          let suggests = 
-              await driver.findElements(By.className('_229JDbp_Z8'));
-          suggests.length.should.equal(0, 'Unexpected suggests are displayed');
-        } catch(err) {
-          await driver.get('https://beru.ru/');
-          assert.fail(err);
-        }
-
-        //return to initial state
-        await driver.get('https://beru.ru/');
+      //return to initial state
+      await driver.manage().deleteAllCookies();
+      await driver.get('https://beru.ru/');
     });
 
-    it('Check "Delete" button erases input field', async function() {
+  it('Check there are no suggests when incorrect city is entered',
+    async function () {
       await driver.get('https://beru.ru/');
-        try {
-          let city = 
-              await driver.findElement(
-                  By.xpath(
-                    '//div[@class="EsYwYP7LNa"]/span[@class="-soJAyMJBd"]/span[@class="_2XJ6yiRp5w"]'));
-          await city.click();              
-          let inputField = 
-              await driver.findElement(
-                  By.xpath(
-                      '//div[@class="_1U2ErCeoqP"]//input[@class="_2JDvXzYsUI"]'));
-          await inputField.sendKeys(Key.CONTROL, 'a', 
-                              Key.NULL, Key.BACK_SPACE, 'тест');
-                              
-          let inputContainer = 
-              await driver.findElement(By.className('_8iW7gwBP58'));
-          let cssWidth = await inputContainer.getCssValue('width');
-          let containerWidth = cssWidth.match(/\d+/)[0];
-          const actions = driver.actions({bridge: true});
-          await actions.move({
-                          x: Math.floor(containerWidth / 2 - 22),
-                          y: 0, 
-                          duration: 500, 
-                          origin: inputContainer}).click().perform();
-          let fieldValue = await inputField.getAttribute('value');
-          fieldValue.should.equal('', 'The input field is not cleared');
-        } catch(err) {
-          await driver.get('https://beru.ru/');
-          assert.fail(err);
+      try {
+        let city =
+          await driver.findElement(
+            By.xpath(
+              '//div[@class="EsYwYP7LNa"]/span[@class="-soJAyMJBd"]/span[@class="_2XJ6yiRp5w"]'));
+        await city.click();
+
+        let inputField =
+          await driver.findElement(
+            By.xpath(
+              '//div[@class="_1U2ErCeoqP"]//input[@class="_2JDvXzYsUI"]'));
+        await inputField.sendKeys(Key.CONTROL, "a", Key.NULL, Key.BACK_SPACE);
+
+        let query = ['й', 'ц', 'у', 'к', 'е', 'н'];
+        for (i = 0; i < query.length; i++) {
+          await inputField.sendKeys(query[i]);
+          await driver.sleep(30);
         }
 
-        //return to initial state
+
+        let suggests =
+          await driver.findElements(By.className('_229JDbp_Z8'));
+        suggests.length.should.equal(0, 'Unexpected suggests are displayed');
+      } catch (err) {
         await driver.get('https://beru.ru/');
+        assert.fail(err);
+      }
+
+      //return to initial state
+      await driver.get('https://beru.ru/');
+    });
+
+  it('Check "Delete" button erases input field', async function () {
+    await driver.get('https://beru.ru/');
+    try {
+      let city =
+        await driver.findElement(
+          By.xpath(
+            '//div[@class="EsYwYP7LNa"]/span[@class="-soJAyMJBd"]/span[@class="_2XJ6yiRp5w"]'));
+      await city.click();
+      let inputField =
+        await driver.findElement(
+          By.xpath(
+            '//div[@class="_1U2ErCeoqP"]//input[@class="_2JDvXzYsUI"]'));
+      await inputField.sendKeys(Key.CONTROL, 'a',
+        Key.NULL, Key.BACK_SPACE, 'тест');
+
+      let inputContainer =
+        await driver.findElement(By.className('_8iW7gwBP58'));
+      let cssWidth = await inputContainer.getCssValue('width');
+      let containerWidth = cssWidth.match(/\d+/)[0];
+      const actions = driver.actions({ bridge: true });
+      await actions.move({
+        x: Math.floor(containerWidth / 2 - 22),
+        y: 0,
+        duration: 500,
+        origin: inputContainer
+      }).click().perform();
+      let fieldValue = await inputField.getAttribute('value');
+      fieldValue.should.equal('', 'The input field is not cleared');
+    } catch (err) {
+      await driver.get('https://beru.ru/');
+      assert.fail(err);
+    }
+
+    //return to initial state
+    await driver.get('https://beru.ru/');
+  });
+
+  it('Check the delivery city persists after refreshing', async function () {
+    await driver.get('https://beru.ru/');
+    try {
+      let city =
+        await driver.findElement(
+          By.xpath(
+            '//div[@class="EsYwYP7LNa"]/span[@class="-soJAyMJBd"]/span[@class="_2XJ6yiRp5w"]'));
+      await city.click();
+
+      let inputField =
+        await driver.findElement(
+          By.xpath(
+            '//div[@class="_1U2ErCeoqP"]//input[@class="_2JDvXzYsUI"]'));
+      await inputField.sendKeys(Key.CONTROL, "a", Key.NULL, Key.BACK_SPACE);
+
+      let query = ['х', 'в', 'а', 'л', 'ы', 'н', 'с', 'к'];
+      for (i = 0; i < query.length; i++) {
+        await inputField.sendKeys(query[i]);
+        await driver.sleep(30);
+      }
+
+
+      let suggest =
+        await driver.wait(until.elementLocated(
+          By.xpath(
+            '//div[@class="_229JDbp_Z8" and text()="Хвалынск"]')),
+          2000, 'Quick suggests aren\'t found');
+      await driver.wait(until.elementIsVisible(suggest),
+        3000, 'Cities suggests list is not visible');
+      await suggest.click();
+
+      let okBtn =
+        await driver.wait(until.elementLocated(
+          By.xpath(
+            '//span[@class="_2w0qPDYwej" and text()="Хорошо"]')),
+          4000, 'OK button is not found');
+      await driver.wait(until.elementIsVisible(okBtn),
+        4000, 'OK button is not visible');
+      okBtn.click();
+      await driver.sleep(500);
+      await driver.get('https://beru.ru/');
+      city = await driver.findElement(
+        By.xpath(
+          '//div[@class="EsYwYP7LNa"]/span[@class="-soJAyMJBd"]/span[@class="_2XJ6yiRp5w"]'));
+
+      let cityName = await city.getText();
+      cityName.should.equal('Хвалынск',
+        'The delivery city has been reset');
+
+    } catch (err) {
+      await driver.manage().deleteAllCookies();
+      await driver.get('https://beru.ru/');
+      assert.fail(err);
+    }
+
+    //return to initial state
+    await driver.manage().deleteAllCookies();
+    await driver.get('https://beru.ru/');
+  });
+
+  it('Check the city changed correctly when "Назад" was pressed',
+    async function () {
+      await driver.get('https://beru.ru/');
+      try {
+        let city =
+          await driver.findElement(
+            By.xpath(
+              '//div[@class="EsYwYP7LNa"]/span[@class="-soJAyMJBd"]/span[@class="_2XJ6yiRp5w"]'));
+        await city.click();
+
+        let inputField =
+          await driver.findElement(
+            By.xpath(
+              '//div[@class="_1U2ErCeoqP"]//input[@class="_2JDvXzYsUI"]'));
+        await inputField.sendKeys(Key.CONTROL, "a", Key.NULL, Key.BACK_SPACE);
+
+        let query = ['х', 'в', 'а', 'л', 'ы', 'н', 'с', 'к'];
+        for (i = 0; i < query.length; i++) {
+          await inputField.sendKeys(query[i]);
+          await driver.sleep(30);
+        }
+
+        let suggest =
+          await driver.wait(until.elementLocated(
+            By.xpath(
+              '//div[@class="_229JDbp_Z8" and text()="Хвалынск"]')),
+            2000, 'Quick suggests aren\'t found');
+        await driver.wait(until.elementIsVisible(suggest),
+          3000, 'Cities suggests list is not visible');
+        await suggest.click();
+
+        let backBtn = await driver.wait(until.elementLocated(
+          By.xpath(
+            '//span[@class="_2w0qPDYwej" and text()="Назад"]')),
+          4000, 'Back button is not found');
+        await driver.wait(until.elementIsVisible(backBtn),
+          4000, 'Back button is not visible');
+        await backBtn.click();
+        inputField =
+          await driver.findElement(
+            By.xpath(
+              '//div[@class="_1U2ErCeoqP"]//input[@class="_2JDvXzYsUI"]'));
+        await inputField.sendKeys(Key.CONTROL, "a", Key.NULL, Key.BACK_SPACE);
+
+        query = ['э', 'н', 'г', 'е', 'л'];
+        for (i = 0; i < query.length; i++) {
+          await inputField.sendKeys(query[i]);
+          await driver.sleep(30);
+        }
+
+        suggest =
+          await driver.wait(until.elementLocated(
+            By.xpath(
+              '//div[@class="_229JDbp_Z8" and text()="Энгельс"]')),
+            2000, 'Quick suggests aren\'t found');
+        await driver.wait(until.elementIsVisible(suggest),
+          3000, 'Cities suggests list is not visible');
+        await suggest.click();
+
+        let okBtn =
+          await driver.wait(until.elementLocated(
+            By.xpath(
+              '//span[@class="_2w0qPDYwej" and text()="Хорошо"]')),
+            4000, 'OK button is not found');
+        await driver.wait(until.elementIsVisible(okBtn),
+          4000, 'OK button is not visible');
+        await okBtn.click();
+        await driver.sleep(500);
+        city = await driver.findElement(
+          By.xpath(
+            '//div[@class="EsYwYP7LNa"]/span[@class="-soJAyMJBd"]/span[@class="_2XJ6yiRp5w"]'));
+
+        let cityName = await city.getText();
+        cityName.should.equal('Энгельс',
+          'The delivery city has been reset');
+
+      } catch (err) {
+        await driver.manage().deleteAllCookies();
+        await driver.get('https://beru.ru/');
+        assert.fail(err);
+      }
+
+      //return to initial state
+      await driver.manage().deleteAllCookies();
+      await driver.get('https://beru.ru/');
+    });
+
+  it('Check the city is not changed if the flow was interrupted',
+    async function () {
+      await driver.get('https://beru.ru/');
+      try {
+        let city =
+          await driver.findElement(
+            By.xpath(
+              '//div[@class="EsYwYP7LNa"]/span[@class="-soJAyMJBd"]/span[@class="_2XJ6yiRp5w"]'));
+        let prevCity = await city.getText();
+        await city.click();
+
+        let inputField =
+          await driver.findElement(
+            By.xpath(
+              '//div[@class="_1U2ErCeoqP"]//input[@class="_2JDvXzYsUI"]'));
+        await inputField.sendKeys(Key.CONTROL, "a", Key.NULL, Key.BACK_SPACE);
+
+        let query = ['х', 'в', 'а', 'л', 'ы', 'н', 'с', 'к'];
+        for (i = 0; i < query.length; i++) {
+          await inputField.sendKeys(query[i]);
+          await driver.sleep(30);
+        }
+
+
+        let suggest =
+          await driver.wait(until.elementLocated(
+            By.xpath(
+              '//div[@class="_229JDbp_Z8" and text()="Хвалынск"]')),
+            2000, 'Quick suggests aren\'t found');
+        await driver.wait(until.elementIsVisible(suggest),
+          3000, 'Cities suggests list is not visible');
+        await suggest.click();
+        await driver.actions().sendKeys(Key.ESCAPE);
+        await driver.sleep(500);
+        city = await driver.wait(
+          until.elementLocated(
+            By.xpath(
+              '//div[@class="EsYwYP7LNa"]/span[@class="-soJAyMJBd"]/span[@class="_2XJ6yiRp5w"]')),
+          5000, "Failed to locate new city value");
+        await driver.wait(until.elementIsVisible(city),
+          3000, 'City is not visible');
+
+        let cityName = await city.getText();
+        cityName.should.equal(prevCity,
+          'The city has been changed despite cancellation');
+      } catch (err) {
+        await driver.manage().deleteAllCookies();
+        await driver.get('https://beru.ru/');
+        assert.fail(err);
+      }
+
+      //return to initial state
+      await driver.manage().deleteAllCookies();
+      await driver.get('https://beru.ru/');
+    });
+
+  it('Check the delivery city is correct after authentification',
+    async function () {
+      await driver.get('https://beru.ru/');
+      try {
+        let city =
+          await driver.findElement(
+            By.xpath(
+              '//div[@class="EsYwYP7LNa"]/span[@class="-soJAyMJBd"]/span[@class="_2XJ6yiRp5w"]'));
+        await city.click();
+
+        let inputField =
+          await driver.findElement(
+            By.xpath(
+              '//div[@class="_1U2ErCeoqP"]//input[@class="_2JDvXzYsUI"]'));
+        await inputField.sendKeys(Key.CONTROL, "a", Key.NULL, Key.BACK_SPACE);
+
+        let query = ['х', 'в', 'а', 'л', 'ы', 'н', 'с', 'к'];
+        for (i = 0; i < query.length; i++) {
+          await inputField.sendKeys(query[i]);
+          await driver.sleep(30);
+        }
+
+
+        let suggest =
+          await driver.wait(until.elementLocated(
+            By.xpath(
+              '//div[@class="_229JDbp_Z8" and text()="Хвалынск"]')),
+            2000, 'Quick suggests aren\'t found');
+        await driver.wait(until.elementIsVisible(suggest),
+          3000, 'Cities suggests list is not visible');
+        await suggest.click();
+
+        let okBtn =
+          await driver.wait(until.elementLocated(
+            By.xpath(
+              '//span[@class="_2w0qPDYwej" and text()="Хорошо"]')),
+            4000, 'OK button is not found');
+        await driver.wait(until.elementIsVisible(okBtn),
+          4000, 'OK button is not visible');
+        okBtn.click();
+        await driver.sleep(500);
+
+        //Authentification flow
+        await driver.findElement(By.className('_3odNv2Dw2n')).click();
+        let loginField =
+          await driver.wait(until.elementLocated(By.id('passp-field-login')),
+            10000, 'Failed to locate login field in the DOM');
+        await driver.wait(until.elementIsVisible(loginField),
+          10000, 'Login field is not visible');
+        await loginField.sendKeys('testmalakhov2019@yandex.ru', Key.RETURN);
+
+        let passField =
+          await driver.wait(until.elementLocated(By.id('passp-field-passwd')),
+            10000, 'Failed to locate password field in the DOM');
+        await driver.wait(until.elementIsVisible(passField),
+          10000, 'Password field is not visible');
+        await passField.sendKeys('38tnrWW!QiNRqJv', Key.RETURN);
+
+        await driver.get('https://beru.ru/my/settings?track=menu');
+
+        let profileCity =
+          await driver.findElement(By.xpath(
+            '//div[@id="region"]//span[contains(@class,"_3ioN70chUh")]/span[contains(@class,"_3l-uEDOaBN")]'))
+            .getText();
+
+        let cityName = await driver.findElement(
+          By.xpath(
+            '//div[@class="EsYwYP7LNa"]/span[@class="-soJAyMJBd"]/span[@class="_2XJ6yiRp5w"]'))
+          .getText();
+
+        profileCity.should.equal(cityName,
+          'Profile and selected city don\'t match');
+
+      } catch (err) {
+        await driver.manage().deleteAllCookies();
+        await driver.get(
+          'https://beru.ru/logout?retpath=https%3A%2F%2Fberu.ru%2F%3Floggedin%3D1');
+        await driver.get('https://passport.yandex.ru/');
+        await driver.manage().deleteAllCookies();
+        await driver.get('https://beru.ru/');
+        assert.fail(err);
+      }
+
+      //return to initial state
+      await driver.manage().deleteAllCookies();
+      await driver.get(
+        'https://beru.ru/logout?retpath=https%3A%2F%2Fberu.ru%2F%3Floggedin%3D1');
+      await driver.get('https://passport.yandex.ru/');
+      await driver.manage().deleteAllCookies();
+      await driver.get('https://beru.ru/');
     });
 });
