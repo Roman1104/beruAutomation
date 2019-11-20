@@ -739,7 +739,7 @@ describe('City selection flow', function () {
       //return to initial state
       await driver.manage().deleteAllCookies();
       await driver.get('https://beru.ru/');
-    });
+  });
 
   it('Check the city is not changed if the flow was interrupted',
     async function () {
@@ -795,12 +795,13 @@ describe('City selection flow', function () {
       //return to initial state
       await driver.manage().deleteAllCookies();
       await driver.get('https://beru.ru/');
-    });
+  });
 
   it('Check the delivery city is correct after authentification',
     async function () {
       await driver.get('https://beru.ru/');
       try {
+        //Change delivery city
         let city =
           await driver.findElement(
             By.xpath(
@@ -837,7 +838,7 @@ describe('City selection flow', function () {
         await driver.wait(until.elementIsVisible(okBtn),
           4000, 'OK button is not visible');
         okBtn.click();
-        await driver.sleep(500);
+        await driver.sleep(2000);
 
         //Authentification flow
         await driver.findElement(By.className('_3odNv2Dw2n')).click();
@@ -854,9 +855,11 @@ describe('City selection flow', function () {
         await driver.wait(until.elementIsVisible(passField),
           10000, 'Password field is not visible');
         await passField.sendKeys('38tnrWW!QiNRqJv', Key.RETURN);
-
+        
+        await driver.sleep(2000);
         await driver.get('https://beru.ru/my/settings?track=menu');
-
+        
+        //Validate city
         let profileCity =
           await driver.findElement(By.xpath(
             '//div[@id="region"]//span[contains(@class,"_3ioN70chUh")]/span[contains(@class,"_3l-uEDOaBN")]'))
@@ -881,9 +884,9 @@ describe('City selection flow', function () {
       }
 
       //return to initial state
-      await driver.manage().deleteAllCookies();
       await driver.get(
         'https://beru.ru/logout?retpath=https%3A%2F%2Fberu.ru%2F%3Floggedin%3D1');
+      await driver.manage().deleteAllCookies();
       await driver.get('https://passport.yandex.ru/');
       await driver.manage().deleteAllCookies();
       await driver.get('https://beru.ru/');
