@@ -5,31 +5,31 @@ const assert = chai.assert;
 const should = chai.should();
 const expect = chai.expect;
 
-describe('Beru.ru authorization flow', function () {
-  this.timeout(0);  //отключаем таймауты (2 секунды) для тестов
+describe('Beru.ru authorization flow', function() {
+  /* this.timeout(0);  //отключаем таймауты (2 секунды) для тестов
   let driver; 
   let profileBtn;
   let loginField;
   let passField;
   let profileName;
   
-  before(async function () {
+  before(async function() {
     driver = await new Builder().forBrowser('chrome').build();
     await driver.manage().window().maximize();
   });
 
-  after(async function () {
+  after(async function() {
     await driver.close();
   });
 
-  it('Check the page opens successfully.', async function () {
+  it('Check the page opens successfully.', async function() {
     await driver.get('https://beru.ru/');
     let title = await driver.getTitle();
     title.should.contain('Беру', 'The page title doesn\'t match the expected');
   });
 
   it('Check login button name is "Войти в аккаунт" for unauthentificated user',
-      async function () {
+      async function() {
         await driver.get('https://beru.ru/');
         
         profileBtn = await driver.findElement(By.className('_3odNv2Dw2n'));
@@ -39,7 +39,7 @@ describe('Beru.ru authorization flow', function () {
   });
 
   it('Check the "Войти в аккаунт" button leads to authentification page', 
-      async function () {
+      async function() {
         await driver.get('https://beru.ru/');
         await driver.findElement(By.className('_3odNv2Dw2n')).click();
         let curUrl = await driver.getCurrentUrl();
@@ -55,7 +55,7 @@ describe('Beru.ru authorization flow', function () {
         await driver.get('https://beru.ru/');
   });
 
-  it('Authentificate user via UI elements', async function () {
+  it('Authentificate user via UI elements', async function() {
     await driver.get(
       'https://beru.ru/login?retpath=https%3A%2F%2Fberu.ru%2F%3Fncrnd%3D8255');
     
@@ -121,7 +121,7 @@ describe('Beru.ru authorization flow', function () {
     await driver.get('https://beru.ru/');
   });
 
-  it('Authentificate user via keyboard', async function () {
+  it('Authentificate user via keyboard', async function() {
     await driver.get(
       'https://beru.ru/login?retpath=https%3A%2F%2Fberu.ru%2F%3Fncrnd%3D8255');
 
@@ -183,7 +183,7 @@ describe('Beru.ru authorization flow', function () {
   });
 
   it('Check the error returns when unexisting login is submitted', 
-      async function () {
+      async function() {
         await driver.get(
           'https://beru.ru/login?retpath=https%3A%2F%2Fberu.ru%2F%3Fncrnd%3D8255');
         
@@ -214,7 +214,7 @@ describe('Beru.ru authorization flow', function () {
         await driver.get('https://beru.ru/');
   });
 
-  it('Check the error returns when incorrect login is submitted', async function () {
+  it('Check the error returns when incorrect login is submitted', async function() {
     await driver.get(
       'https://beru.ru/login?retpath=https%3A%2F%2Fberu.ru%2F%3Fncrnd%3D8255');
     
@@ -245,7 +245,7 @@ describe('Beru.ru authorization flow', function () {
     await driver.get('https://beru.ru/');
   });
 
-  it('Check the error returns when no login is submitted', async function () {
+  it('Check the error returns when no login is submitted', async function() {
     await driver.get(
       'https://beru.ru/login?retpath=https%3A%2F%2Fberu.ru%2F%3Fncrnd%3D8255');
     
@@ -276,7 +276,7 @@ describe('Beru.ru authorization flow', function () {
   }); 
   
   it('Check the back button on auth page stops the flow and returns to site', 
-      async function () {
+      async function() {
         await driver.get(
           'https://beru.ru/login?retpath=https%3A%2F%2Fberu.ru%2F%3Fncrnd%3D8255');
         
@@ -305,7 +305,7 @@ describe('Beru.ru authorization flow', function () {
 
 
   it('Check the error returns when incorreсt password is submitted', 
-      async function () {
+      async function() {
         await driver.get(
           'https://beru.ru/login?retpath=https%3A%2F%2Fberu.ru%2F%3Fncrnd%3D8255');
         
@@ -360,7 +360,7 @@ describe('Beru.ru authorization flow', function () {
   });
   
   it('Check the error returns when no password is submitted', 
-      async function () {
+      async function() {
         await driver.get(
           'https://beru.ru/login?retpath=https%3A%2F%2Fberu.ru%2F%3Fncrnd%3D8255');
         
@@ -412,23 +412,23 @@ describe('Beru.ru authorization flow', function () {
         //return to initial state
         await driver.manage().deleteAllCookies();
         await driver.get('https://beru.ru/');
-  });
+  }); */
 });
 
-describe('City selection flow', function () {
+/* describe('City selection flow', function() {
   this.timeout(0);  //отключаем таймауты (2 секунды) для тестов
   let driver;
 
-  before(async function () {
+  before(async function() {
     driver = await new Builder().forBrowser('chrome').build();
     await driver.manage().window().maximize();
   });
 
-  after(async function () {
+  after(async function() {
     await driver.close();
   });
 
-  it('Check the city input field appears', async function () {
+  it('Check the city input field appears', async function() {
     await driver.get('https://beru.ru/');
 
     try {
@@ -459,7 +459,7 @@ describe('City selection flow', function () {
   });
 
   it('Check the city is changed when user clicks the suggested option',
-    async function () {
+    async function() {
       await driver.get('https://beru.ru/');
       try {
         let city =
@@ -523,7 +523,7 @@ describe('City selection flow', function () {
     });
 
   it('Check there are no suggests when incorrect city is entered',
-    async function () {
+    async function() {
       await driver.get('https://beru.ru/');
       try {
         let city =
@@ -557,7 +557,7 @@ describe('City selection flow', function () {
       await driver.get('https://beru.ru/');
     });
 
-  it('Check "Delete" button erases input field', async function () {
+  it('Check "Delete" button erases input field', async function() {
     await driver.get('https://beru.ru/');
     try {
       let city =
@@ -594,7 +594,7 @@ describe('City selection flow', function () {
     await driver.get('https://beru.ru/');
   });
 
-  it('Check the delivery city persists after refreshing', async function () {
+  it('Check the delivery city persists after refreshing', async function() {
     await driver.get('https://beru.ru/');
     try {
       let city =
@@ -655,7 +655,7 @@ describe('City selection flow', function () {
   });
 
   it('Check the city changed correctly when "Назад" was pressed',
-    async function () {
+    async function() {
       await driver.get('https://beru.ru/');
       try {
         let city =
@@ -742,7 +742,7 @@ describe('City selection flow', function () {
   });
 
   it('Check the city is not changed if the flow was interrupted',
-    async function () {
+    async function() {
       await driver.get('https://beru.ru/');
       try {
         let city =
@@ -798,7 +798,7 @@ describe('City selection flow', function () {
   });
 
   it('Check the delivery city is correct after authentification',
-    async function () {
+    async function() {
       await driver.get('https://beru.ru/');
       try {
         //Change delivery city
@@ -874,10 +874,11 @@ describe('City selection flow', function () {
           'Profile and selected city don\'t match');
 
       } catch (err) {
-        await driver.manage().deleteAllCookies();
         await driver.get(
           'https://beru.ru/logout?retpath=https%3A%2F%2Fberu.ru%2F%3Floggedin%3D1');
         await driver.get('https://passport.yandex.ru/');
+        await driver.manage().deleteAllCookies();
+        await driver.get('https://beru.ru/');
         await driver.manage().deleteAllCookies();
         await driver.get('https://beru.ru/');
         assert.fail(err);
@@ -886,9 +887,351 @@ describe('City selection flow', function () {
       //return to initial state
       await driver.get(
         'https://beru.ru/logout?retpath=https%3A%2F%2Fberu.ru%2F%3Floggedin%3D1');
+      await driver.get('https://passport.yandex.ru/');
+      await driver.manage().deleteAllCookies();
+      await driver.get('https://beru.ru/');
+      await driver.manage().deleteAllCookies();
+      await driver.get('https://beru.ru/');
+  });
+
+  it('Check the city change persists when user interrupts authentification', 
+    async function() {
+      await driver.get('https://beru.ru/');
+      try {
+        //Change delivery city
+        let city =
+          await driver.findElement(
+            By.xpath(
+              '//div[@class="EsYwYP7LNa"]/span[@class="-soJAyMJBd"]/span[@class="_2XJ6yiRp5w"]'));
+        await city.click();
+
+        let inputField =
+          await driver.findElement(
+            By.xpath(
+              '//div[@class="_1U2ErCeoqP"]//input[@class="_2JDvXzYsUI"]'));
+        await inputField.sendKeys(Key.CONTROL, "a", Key.NULL, Key.BACK_SPACE);
+
+        let query = ['х', 'в', 'а', 'л', 'ы', 'н', 'с', 'к'];
+        for (i = 0; i < query.length; i++) {
+          await inputField.sendKeys(query[i]);
+          await driver.sleep(30);
+        }
+
+
+        let suggest =
+          await driver.wait(until.elementLocated(
+            By.xpath(
+              '//div[@class="_229JDbp_Z8" and text()="Хвалынск"]')),
+            2000, 'Quick suggests aren\'t found');
+        await driver.wait(until.elementIsVisible(suggest),
+          3000, 'Cities suggests list is not visible');
+        await suggest.click();
+
+        let okBtn =
+          await driver.wait(until.elementLocated(
+            By.xpath(
+              '//span[@class="_2w0qPDYwej" and text()="Хорошо"]')),
+            4000, 'OK button is not found');
+        await driver.wait(until.elementIsVisible(okBtn),
+          4000, 'OK button is not visible');
+        okBtn.click();
+        await driver.sleep(2000);
+
+        //Authentification flow
+        await driver.findElement(By.className('_3odNv2Dw2n')).click();
+        let loginField =
+          await driver.wait(until.elementLocated(By.id('passp-field-login')),
+            10000, 'Failed to locate login field in the DOM');
+        await driver.wait(until.elementIsVisible(loginField),
+          10000, 'Login field is not visible');
+        await driver.findElement(
+                        By.className('passp-previous-step-button__icon'))
+                        .click();
+        
+        
+        //Validate city
+        let cityName = await driver.wait(until.elementLocated(
+          By.xpath(
+            '//div[@class="EsYwYP7LNa"]/span[@class="-soJAyMJBd"]/span[@class="_2XJ6yiRp5w"]')),
+            10000, 'The delivery city is not visible')
+            .getText();
+        cityName.should.equal('Хвалынск', 'The city changing has been lost');
+
+      } catch (err) {
+        await driver.get('https://beru.ru/');
+        await driver.manage().deleteAllCookies();
+        await driver.get('https://beru.ru/');
+        assert.fail(err);
+      }
+
+      //return to initial state
+      await driver.manage().deleteAllCookies();
+      await driver.get('https://beru.ru/');
+  });
+
+  it('Check the city persists after reloading the site', async function() {
+    await driver.get('https://beru.ru/');
+    try {
+        //Change delivery city
+      let city =
+          await driver.findElement(
+            By.xpath(
+              '//div[@class="EsYwYP7LNa"]/span[@class="-soJAyMJBd"]/span[@class="_2XJ6yiRp5w"]'));
+      await city.click();
+
+      let inputField =
+        await driver.findElement(
+          By.xpath(
+            '//div[@class="_1U2ErCeoqP"]//input[@class="_2JDvXzYsUI"]'));
+      await inputField.sendKeys(Key.CONTROL, "a", Key.NULL, Key.BACK_SPACE);
+
+      let query = ['х', 'в', 'а', 'л', 'ы', 'н', 'с', 'к'];
+      for (i = 0; i < query.length; i++) {
+        await inputField.sendKeys(query[i]);
+        await driver.sleep(30);
+      }
+
+
+      let suggest =
+        await driver.wait(until.elementLocated(
+          By.xpath(
+            '//div[@class="_229JDbp_Z8" and text()="Хвалынск"]')),
+          2000, 'Quick suggests aren\'t found');
+      await driver.wait(until.elementIsVisible(suggest),
+                      3000, 'Cities suggests list is not visible');
+      await suggest.click();
+
+      let okBtn =
+        await driver.wait(until.elementLocated(
+          By.xpath(
+            '//span[@class="_2w0qPDYwej" and text()="Хорошо"]')),
+            4000, 'OK button is not found');
+      await driver.wait(until.elementIsVisible(okBtn),
+        4000, 'OK button is not visible');
+      okBtn.click();
+      await driver.sleep(2000);
+
+      //Authentification flow
+      await driver.findElement(By.className('_3odNv2Dw2n')).click();
+      let loginField =
+        await driver.wait(until.elementLocated(By.id('passp-field-login')),
+          10000, 'Failed to locate login field in the DOM');
+      await driver.wait(until.elementIsVisible(loginField),
+        10000, 'Login field is not visible');
+      await loginField.sendKeys('testmalakhov2019@yandex.ru', Key.RETURN);
+
+      let passField =
+        await driver.wait(until.elementLocated(By.id('passp-field-passwd')),
+          10000, 'Failed to locate password field in the DOM');
+      await driver.wait(until.elementIsVisible(passField),
+        10000, 'Password field is not visible');
+      await passField.sendKeys('38tnrWW!QiNRqJv', Key.RETURN);
+
+      await driver.sleep(2000);
+      await driver.get('https://beru.ru/');
+
+      //Validate city
+      let cityName = await driver.findElement(
+        By.xpath(
+          '//div[@class="EsYwYP7LNa"]/span[@class="-soJAyMJBd"]/span[@class="_2XJ6yiRp5w"]'))
+        .getText();
+
+      cityName.should.equal('Хвалынск',
+        'Profile and selected city don\'t match');
+
+    } catch (err) {
+      await driver.get(
+        'https://beru.ru/logout?retpath=https%3A%2F%2Fberu.ru%2F%3Floggedin%3D1');
+      await driver.get('https://passport.yandex.ru/');
+      await driver.manage().deleteAllCookies();
+      await driver.get('https://beru.ru/');
+      await driver.manage().deleteAllCookies();
+      await driver.get('https://beru.ru/');
+      assert.fail(err);
+    }
+
+    //return to initial state
+    await driver.get(
+      'https://beru.ru/logout?retpath=https%3A%2F%2Fberu.ru%2F%3Floggedin%3D1');
+    await driver.get('https://passport.yandex.ru/');
+    await driver.manage().deleteAllCookies();
+    await driver.get('https://beru.ru/');
+    await driver.manage().deleteAllCookies();
+    await driver.get('https://beru.ru/');
+  });
+
+    it('Check the city persists when user logs out', async function() {
+      await driver.get('https://beru.ru/');
+      try {
+        //Change delivery city
+        let city =
+          await driver.findElement(
+            By.xpath(
+              '//div[@class="EsYwYP7LNa"]/span[@class="-soJAyMJBd"]/span[@class="_2XJ6yiRp5w"]'));
+        await city.click();
+
+        let inputField =
+          await driver.findElement(
+            By.xpath(
+              '//div[@class="_1U2ErCeoqP"]//input[@class="_2JDvXzYsUI"]'));
+        await inputField.sendKeys(Key.CONTROL, "a", Key.NULL, Key.BACK_SPACE);
+
+        let query = ['х', 'в', 'а', 'л', 'ы', 'н', 'с', 'к'];
+        for (i = 0; i < query.length; i++) {
+          await inputField.sendKeys(query[i]);
+          await driver.sleep(30);
+        }
+
+
+        let suggest =
+          await driver.wait(until.elementLocated(
+            By.xpath(
+              '//div[@class="_229JDbp_Z8" and text()="Хвалынск"]')),
+            2000, 'Quick suggests aren\'t found');
+        await driver.wait(until.elementIsVisible(suggest),
+          3000, 'Cities suggests list is not visible');
+        await suggest.click();
+
+        let okBtn =
+          await driver.wait(until.elementLocated(
+            By.xpath(
+              '//span[@class="_2w0qPDYwej" and text()="Хорошо"]')),
+            4000, 'OK button is not found');
+        await driver.wait(until.elementIsVisible(okBtn),
+          4000, 'OK button is not visible');
+        okBtn.click();
+        await driver.sleep(2000);
+
+        //Authentification flow
+        await driver.findElement(By.className('_3odNv2Dw2n')).click();
+        let loginField =
+          await driver.wait(until.elementLocated(By.id('passp-field-login')),
+            10000, 'Failed to locate login field in the DOM');
+        await driver.wait(until.elementIsVisible(loginField),
+          10000, 'Login field is not visible');
+        await loginField.sendKeys('testmalakhov2019@yandex.ru', Key.RETURN);
+
+        let passField =
+          await driver.wait(until.elementLocated(By.id('passp-field-passwd')),
+            10000, 'Failed to locate password field in the DOM');
+        await driver.wait(until.elementIsVisible(passField),
+          10000, 'Password field is not visible');
+        await passField.sendKeys('38tnrWW!QiNRqJv', Key.RETURN);
+        
+        await driver.sleep(2000);
+        await driver.get(
+          'https://beru.ru/logout?retpath=https%3A%2F%2Fberu.ru%2F%3Floggedin%3D1');
+        
+        //Validate city
+        let cityName = await driver.findElement(
+          By.xpath(
+            '//div[@class="EsYwYP7LNa"]/span[@class="-soJAyMJBd"]/span[@class="_2XJ6yiRp5w"]'))
+          .getText();
+
+        cityName.should.equal('Хвалынск',
+          'Profile and selected city don\'t match');
+
+      } catch (err) {
+        await driver.get(
+          'https://beru.ru/logout?retpath=https%3A%2F%2Fberu.ru%2F%3Floggedin%3D1');
+        await driver.get('https://passport.yandex.ru/');
+        await driver.manage().deleteAllCookies();
+        await driver.get('https://beru.ru/');
+        await driver.manage().deleteAllCookies();
+        await driver.get('https://beru.ru/');
+        assert.fail(err);
+      }
+
+      //return to initial state
       await driver.manage().deleteAllCookies();
       await driver.get('https://passport.yandex.ru/');
       await driver.manage().deleteAllCookies();
       await driver.get('https://beru.ru/');
     });
+}); */
+
+describe('Order management flow', function() {
+  this.timeout(0);  //отключаем таймауты (2 секунды) для тестов
+  let driver;
+
+  before(async function() {
+    driver = await new Builder().forBrowser('chrome').build();
+    await driver.manage().window().maximize();
+  });
+
+  after(async function() {
+    //await driver.close();
+  });
+
+  /* it('Check the electric toothbrushes section contains items', 
+      async function() {
+        await driver.get('https://beru.ru/');
+        try {
+          await driver.findElement(
+            By.className('_301_b-LBxR'))
+              .click();
+          let hygieneSection = await driver.findElement(
+            By.xpath(
+              '//li//span[@class="_19FPGVzRi9" and text()="Красота и гигиена"]'
+              ));
+          let listItemPos = await hygieneSection.getRect();
+          const actions = driver.actions({ bridge: true });
+          await actions.move({
+              x: Math.floor(listItemPos.x),
+              y: Math.floor(listItemPos.y),
+              duration: 500
+          }).perform();
+          await driver.findElement(
+              By.xpath(
+              '//span[@class="_27Pcf7STDj" and text() = "Электрические зубные щетки"]'))
+              .click();
+          await driver.sleep(2000);
+          let items = await driver.findElements(By.className('_1gDHxFdZ7E'));
+          items.length.should.be.above(0, 'There is no items on the page');
+        } catch(err) {
+          await driver.get('https://beru.ru/');
+          assert.fail(err);
+        }
+
+        //return to initial state
+        await driver.get('https://beru.ru/');
+  }); */
+
+  it('Check the filter min value works properly', async function() {
+    await driver.get('https://beru.ru/catalog/elektricheskie-zubnye-shchetki/80961/list?hid=278374&track=menuleaf');
+    try {
+      await driver.findElement(
+        By.xpath(
+          '//div[@data-auto="filter-range-glprice"]/span[@data-auto="filter-range-min"]//input'))
+        .sendKeys('999');
+        await driver.sleep(1000);
+        
+        let counter = 0;
+        if (items.length > 0) {
+          do {
+            let items = await driver.findElements(
+              By.xpath('//*[@data-auto="price"]/span/span[1]'));
+            for (i = 0; i < items.length; i++) {
+              let price = await items[i].getText();
+              price.should.be.at.least(
+                999, 'Items with price below min value were found');
+              counter++;
+            }
+            let nextBtn = await driver.findElements(
+              By.xpath('//div[@data-auto="pagination-next"]/span'));
+          } while (nextBtn.length = 1);
+        } else {
+          await driver.findElement(
+            By.xpath(
+              '//div[@class="_2QyTfBZosp _26mXJDBxtH" and text() = "Нет подходящих товаров"]'));
+        }
+
+      } catch(err) {
+        await driver.get('https://beru.ru/');
+        assert.fail(err);
+      }
+
+      //return to initial state
+      await driver.get('https://beru.ru/');
+  });
 });
