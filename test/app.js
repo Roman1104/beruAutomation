@@ -1,18 +1,18 @@
-const { Builder, By, Key, until } = require('selenium-webdriver');
-const mocha = require('mocha');
-const chai = require('chai');
-const assert = chai.assert;
-const should = chai.should();
-const expect = chai.expect;
+const { Builder, By, Key, until } = require('selenium-webdriver')
+const mocha = require('mocha')
+const chai = require('chai')
+const assert = chai.assert
+const should = chai.should()
+const expect = chai.expect
 
 describe('Beru.ru authorization flow', function() {
-  /* this.timeout(0);  //отключаем таймауты (2 секунды) для тестов
-  let driver; 
+  this.timeout(0);  //отключаем таймауты (2 секунды) для тестов
+  let driver;
   let profileBtn;
   let loginField;
   let passField;
   let profileName;
-  
+
   before(async function() {
     driver = await new Builder().forBrowser('chrome').build();
     await driver.manage().window().maximize();
@@ -31,14 +31,14 @@ describe('Beru.ru authorization flow', function() {
   it('Check login button name is "Войти в аккаунт" for unauthentificated user',
       async function() {
         await driver.get('https://beru.ru/');
-        
+
         profileBtn = await driver.findElement(By.className('_3odNv2Dw2n'));
         let btnText = await profileBtn.getText();
-        btnText.should.equal('Войти в аккаунт', 
+        btnText.should.equal('Войти в аккаунт',
                         'Button title doesn\'t match:');
   });
 
-  it('Check the "Войти в аккаунт" button leads to authentification page', 
+  it('Check the "Войти в аккаунт" button leads to authentification page',
       async function() {
         await driver.get('https://beru.ru/');
         await driver.findElement(By.className('_3odNv2Dw2n')).click();
@@ -58,23 +58,23 @@ describe('Beru.ru authorization flow', function() {
   it('Authentificate user via UI elements', async function() {
     await driver.get(
       'https://beru.ru/login?retpath=https%3A%2F%2Fberu.ru%2F%3Fncrnd%3D8255');
-    
+
     try {
-      loginField = 
+      loginField =
           await driver.wait(until.elementLocated(By.id('passp-field-login')),
                           10000, 'Failed to locate login field in the DOM');
-      await driver.wait(until.elementIsVisible(loginField), 
+      await driver.wait(until.elementIsVisible(loginField),
                       10000, 'Login field is not visible');
-      
+
       await loginField.sendKeys('testmalakhov2019@yandex.ru');
       await driver.findElement(By.className('passp-sign-in-button')).click();
-    
-      passField = 
+
+      passField =
           await driver.wait(until.elementLocated(By.id('passp-field-passwd')),
                           10000, 'Failed to locate password field in the DOM');
-      await driver.wait(until.elementIsVisible(passField), 
+      await driver.wait(until.elementIsVisible(passField),
                       10000, 'Password field is not visible');
-    
+
       await passField.sendKeys('38tnrWW!QiNRqJv');
       await driver.findElement(By.className('passp-form-button')).click();
     } catch(err) {
@@ -85,24 +85,24 @@ describe('Beru.ru authorization flow', function() {
     try {
       let curUrl = await driver.getCurrentUrl();
       curUrl.should.contain('beru.ru','Failed to redirect back to the site');
-      
-      profileBtn = 
+
+      profileBtn =
           await driver.wait(until.elementLocated(By.className('_3odNv2Dw2n')),
                           10000, 'Profile buttun not found');
       let btnText = await profileBtn.getText();
       btnText.should.equal('Мой профиль', 'Button title doesn\'t match:');
-      
-      await driver.wait(until.elementIsVisible(profileBtn), 
-                      10000, 'Profile button is invisible'); 
+
+      await driver.wait(until.elementIsVisible(profileBtn),
+                      10000, 'Profile button is invisible');
       await profileBtn.click();
-      
-      let profileTitle = 
+
+      let profileTitle =
           await driver.wait(until.elementLocated(By.className('_2I5v9t-gmG')),
                           10000, 'Profile title not found');
-      await driver.wait(until.elementIsVisible(profileTitle), 
+      await driver.wait(until.elementIsVisible(profileTitle),
                       10000, 'Profile title is not visible');
       profileName = await profileTitle.getText();
-      profileName.should.equal('Automation Test Malakhov 2019', 
+      profileName.should.equal('Automation Test Malakhov 2019',
                             'Profile name doesn\'t match:');
     } catch(err) {
       await driver.get(
@@ -112,7 +112,7 @@ describe('Beru.ru authorization flow', function() {
       await driver.get('https://beru.ru/');
       assert.fail(err);
     }
-    
+
     //return to initial state
     await driver.get(
       'https://beru.ru/logout?retpath=https%3A%2F%2Fberu.ru%2F%3Floggedin%3D1');
@@ -126,17 +126,17 @@ describe('Beru.ru authorization flow', function() {
       'https://beru.ru/login?retpath=https%3A%2F%2Fberu.ru%2F%3Fncrnd%3D8255');
 
     try {
-      loginField = 
+      loginField =
           await driver.wait(until.elementLocated(By.id('passp-field-login')),
                           10000, 'Failed to locate login field in the DOM');
-      await driver.wait(until.elementIsVisible(loginField), 
+      await driver.wait(until.elementIsVisible(loginField),
                       10000, 'Login field is not visible');
       await loginField.sendKeys('testmalakhov2019@yandex.ru', Key.RETURN);
-    
-      passField = 
-          await driver.wait(until.elementLocated(By.id('passp-field-passwd')), 
+
+      passField =
+          await driver.wait(until.elementLocated(By.id('passp-field-passwd')),
                           10000, 'Failed to locate password field in the DOM');
-      await driver.wait(until.elementIsVisible(passField), 
+      await driver.wait(until.elementIsVisible(passField),
                       10000, 'Password field is not visible');
       await passField.sendKeys('38tnrWW!QiNRqJv', Key.RETURN);
     } catch(err) {
@@ -147,23 +147,23 @@ describe('Beru.ru authorization flow', function() {
     try {
       let curUrl = await driver.getCurrentUrl();
       curUrl.should.contain('beru.ru','Failed to redirect back to the site');
-      
-      profileBtn = 
+
+      profileBtn =
           await driver.wait(until.elementLocated(By.className('_3odNv2Dw2n')),
                           10000, 'Profile button not found');
-      await driver.wait(until.elementIsVisible(profileBtn), 
+      await driver.wait(until.elementIsVisible(profileBtn),
                      10000, 'Profile button is invisible');
       let btnText = await profileBtn.getText();
       btnText.should.equal('Мой профиль', 'Button title doesn\'t match:');
       await profileBtn.click();
-      
-      let profileTitle = 
+
+      let profileTitle =
           await driver.wait(until.elementLocated(By.className('_2I5v9t-gmG')),
                          10000, 'Profile title not found');
       await driver.wait(until.elementIsVisible(profileTitle),
                       10000, 'Profile title is not visible');
       profileName = await profileTitle.getText();
-      profileName.should.equal('Automation Test Malakhov 2019', 
+      profileName.should.equal('Automation Test Malakhov 2019',
                           'Profile name doesn\'t match:');
     } catch(err) {
       await driver.get(
@@ -173,7 +173,7 @@ describe('Beru.ru authorization flow', function() {
       await driver.get('https://beru.ru/');
       assert.fail(err);
     }
-    
+
     //return to initial state
     await driver.get(
       'https://beru.ru/logout?retpath=https%3A%2F%2Fberu.ru%2F%3Floggedin%3D1');
@@ -182,26 +182,26 @@ describe('Beru.ru authorization flow', function() {
     await driver.get('https://beru.ru/');
   });
 
-  it('Check the error returns when unexisting login is submitted', 
+  it('Check the error returns when unexisting login is submitted',
       async function() {
         await driver.get(
           'https://beru.ru/login?retpath=https%3A%2F%2Fberu.ru%2F%3Fncrnd%3D8255');
-        
+
         try {
-          loginField = 
+          loginField =
             await driver.wait(until.elementLocated(By.id('passp-field-login')),
                 10000, 'Failed to locate login field in the DOM');
-          await driver.wait(until.elementIsVisible(loginField), 
+          await driver.wait(until.elementIsVisible(loginField),
                           10000, 'Login field is not visible');
           await loginField.sendKeys('bkcglkhlcvb', Key.RETURN);
-          
-          let errorBlock = 
+
+          let errorBlock =
               await driver.wait(until.elementLocated(
                               By.className('passp-form-field__error')), 2000,
                               'No error message in the DOM');
           await driver.wait(until.elementIsVisible(errorBlock), 2000,
                           'Error message is not visible');
-          
+
           let errorText = await errorBlock.getText();
           errorText.should.equal('Такого аккаунта нет',
                               'Incorrect error message text');
@@ -217,24 +217,24 @@ describe('Beru.ru authorization flow', function() {
   it('Check the error returns when incorrect login is submitted', async function() {
     await driver.get(
       'https://beru.ru/login?retpath=https%3A%2F%2Fberu.ru%2F%3Fncrnd%3D8255');
-    
+
     try {
-      loginField = 
+      loginField =
           await driver.wait(until.elementLocated(By.id('passp-field-login')),
                           10000, 'Failed to locate login field in the DOM');
-      await driver.wait(until.elementIsVisible(loginField), 
+      await driver.wait(until.elementIsVisible(loginField),
                       10000, 'Login field is not visible');
       await loginField.sendKeys('1111', Key.RETURN);
-      
-      let errorBlock = 
+
+      let errorBlock =
           await driver.wait(until.elementLocated(
                           By.className('passp-form-field__error')),
                           2000, 'No error message in the DOM');
-      await driver.wait(until.elementIsVisible(errorBlock), 
+      await driver.wait(until.elementIsVisible(errorBlock),
                       2000, 'Error message is not visible');
-      
+
       let errorText = await errorBlock.getText();
-      errorText.should.equal('Такой логин не подойдет', 
+      errorText.should.equal('Такой логин не подойдет',
                           'Incorrect error message text');
     } catch(err) {
       await driver.get('https://beru.ru/');
@@ -248,22 +248,22 @@ describe('Beru.ru authorization flow', function() {
   it('Check the error returns when no login is submitted', async function() {
     await driver.get(
       'https://beru.ru/login?retpath=https%3A%2F%2Fberu.ru%2F%3Fncrnd%3D8255');
-    
+
     try {
-      loginField = 
-          await driver.wait(until.elementLocated(By.id('passp-field-login')), 
+      loginField =
+          await driver.wait(until.elementLocated(By.id('passp-field-login')),
                           10000, 'Failed to locate login field in the DOM');
-      await driver.wait(until.elementIsVisible(loginField), 
+      await driver.wait(until.elementIsVisible(loginField),
                       10000, 'Login field is not visible');
       await loginField.sendKeys(Key.RETURN);
-      
-      let errorBlock = 
+
+      let errorBlock =
           await driver.wait(until.elementLocated(
-                          By.className('passp-form-field__error')), 
+                          By.className('passp-form-field__error')),
                           2000, 'No error message in the DOM');
-      await driver.wait(until.elementIsVisible(errorBlock), 
+      await driver.wait(until.elementIsVisible(errorBlock),
                       2000, 'Error message is not visible');
-      
+
       let errorText = await errorBlock.getText();
       errorText.should.equal('Логин не указан', 'Incorrect error message text');
     } catch(err) {
@@ -273,27 +273,27 @@ describe('Beru.ru authorization flow', function() {
 
     //return to initial state
     await driver.get('https://beru.ru/');
-  }); 
-  
-  it('Check the back button on auth page stops the flow and returns to site', 
+  });
+
+  it('Check the back button on auth page stops the flow and returns to site',
       async function() {
         await driver.get(
           'https://beru.ru/login?retpath=https%3A%2F%2Fberu.ru%2F%3Fncrnd%3D8255');
-        
+
         try {
           await driver.findElement(
                           By.className('passp-previous-step-button__icon'))
                           .click();
-          
+
           let curUrl = await driver.getCurrentUrl();
           curUrl.should.contain(
                         'beru.ru','Failed to redirect to passport.yandex.ru');
-          
-          profileBtn = 
+
+          profileBtn =
               await driver.wait(until.elementLocated(
-                              By.className('_3odNv2Dw2n')), 10000, 
+                              By.className('_3odNv2Dw2n')), 10000,
                               'Profile button is missing on the page');
-          
+
           let btnText = await profileBtn.getText();
           btnText.should.equal('Войти в аккаунт', 'Button title doesn\'t match:');
         }
@@ -304,24 +304,24 @@ describe('Beru.ru authorization flow', function() {
   });
 
 
-  it('Check the error returns when incorreсt password is submitted', 
+  it('Check the error returns when incorreсt password is submitted',
       async function() {
         await driver.get(
           'https://beru.ru/login?retpath=https%3A%2F%2Fberu.ru%2F%3Fncrnd%3D8255');
-        
+
         try {
-          loginField = 
+          loginField =
               await driver.wait(until.elementLocated(
-                              By.id('passp-field-login')), 10000, 
+                              By.id('passp-field-login')), 10000,
                               'Failed to locate login field in the DOM');
-          await driver.wait(until.elementIsVisible(loginField), 
+          await driver.wait(until.elementIsVisible(loginField),
                           10000, 'Login field is not visible');
           await loginField.sendKeys('testmalakhov2019@yandex.ru', Key.RETURN);
 
-          passField = 
+          passField =
               await driver.wait(until.elementLocated(By.id('passp-field-passwd')),
                           10000, 'Failed to locate password field in the DOM');
-          await driver.wait(until.elementIsVisible(passField), 
+          await driver.wait(until.elementIsVisible(passField),
                           10000, 'Password field is not visible');
           await passField.sendKeys('38tnrWW!qiNRqJv', Key.RETURN);
         } catch(err) {
@@ -333,16 +333,16 @@ describe('Beru.ru authorization flow', function() {
           let curUrl = await driver.getCurrentUrl();
           curUrl.should.contain('passport.yandex.ru',
                           'Unexpected redirect occured');
-          
-          let errorBlock = 
+
+          let errorBlock =
               await driver.wait(until.elementLocated(
                               By.className('passp-form-field__error')),
                               2000, 'No error message in the DOM');
-          await driver.wait(until.elementIsVisible(errorBlock), 
+          await driver.wait(until.elementIsVisible(errorBlock),
                           2000, 'Error message is not visible');
-          
+
           let errorText = await errorBlock.getText();
-          errorText.should.equal('Неверный пароль', 
+          errorText.should.equal('Неверный пароль',
                               'Incorrect error message text');
         }
         catch(err) {
@@ -353,27 +353,27 @@ describe('Beru.ru authorization flow', function() {
           await driver.get('https://beru.ru/');
           assert.fail(err);
         }
-        
+
         //return to initial state
         await driver.manage().deleteAllCookies();
         await driver.get('https://beru.ru/');
   });
-  
-  it('Check the error returns when no password is submitted', 
+
+  it('Check the error returns when no password is submitted',
       async function() {
         await driver.get(
           'https://beru.ru/login?retpath=https%3A%2F%2Fberu.ru%2F%3Fncrnd%3D8255');
-        
+
         try {
-          loginField = 
+          loginField =
               await driver.wait(until.elementLocated(
                               By.id('passp-field-login')), 10000,
                               'Failed to locate login field in the DOM');
-          await driver.wait(until.elementIsVisible(loginField), 
+          await driver.wait(until.elementIsVisible(loginField),
                           10000, 'Login field is not visible');
           await loginField.sendKeys('testmalakhov2019@yandex.ru', Key.RETURN);
 
-          passField = 
+          passField =
               await driver.wait(until.elementLocated(
                               By.id('passp-field-passwd')), 10000,
                               'Failed to locate password field in the DOM');
@@ -389,15 +389,15 @@ describe('Beru.ru authorization flow', function() {
           let curUrl = await driver.getCurrentUrl();
           curUrl.should.contain('passport.yandex.ru',
                           'Unexpected redirect occured');
-          let errorBlock = 
+          let errorBlock =
               await driver.wait(until.elementLocated(
                               By.className('passp-form-field__error')),
                               2000, 'No error message in the DOM');
-          await driver.wait(until.elementIsVisible(errorBlock), 
+          await driver.wait(until.elementIsVisible(errorBlock),
                           2000, 'Error message is not visible');
-          
+
           let errorText = await errorBlock.getText();
-          errorText.should.equal('Пароль не указан', 
+          errorText.should.equal('Пароль не указан',
                               'Incorrect error message text');
         }
         catch(err) {
@@ -408,14 +408,14 @@ describe('Beru.ru authorization flow', function() {
           await driver.get('https://beru.ru/');
           assert.fail(err);
         }
-        
+
         //return to initial state
         await driver.manage().deleteAllCookies();
         await driver.get('https://beru.ru/');
-  }); */
-});
+  });
+})
 
-/* describe('City selection flow', function() {
+describe('City selection flow', function() {
   this.timeout(0);  //отключаем таймауты (2 секунды) для тестов
   let driver;
 
@@ -855,10 +855,10 @@ describe('Beru.ru authorization flow', function() {
         await driver.wait(until.elementIsVisible(passField),
           10000, 'Password field is not visible');
         await passField.sendKeys('38tnrWW!QiNRqJv', Key.RETURN);
-        
+
         await driver.sleep(2000);
         await driver.get('https://beru.ru/my/settings?track=menu');
-        
+
         //Validate city
         let profileCity =
           await driver.findElement(By.xpath(
@@ -894,7 +894,7 @@ describe('Beru.ru authorization flow', function() {
       await driver.get('https://beru.ru/');
   });
 
-  it('Check the city change persists when user interrupts authentification', 
+  it('Check the city change persists when user interrupts authentification',
     async function() {
       await driver.get('https://beru.ru/');
       try {
@@ -947,8 +947,8 @@ describe('Beru.ru authorization flow', function() {
         await driver.findElement(
                         By.className('passp-previous-step-button__icon'))
                         .click();
-        
-        
+
+
         //Validate city
         let cityName = await driver.wait(until.elementLocated(
           By.xpath(
@@ -1117,11 +1117,11 @@ describe('Beru.ru authorization flow', function() {
         await driver.wait(until.elementIsVisible(passField),
           10000, 'Password field is not visible');
         await passField.sendKeys('38tnrWW!QiNRqJv', Key.RETURN);
-        
+
         await driver.sleep(2000);
         await driver.get(
           'https://beru.ru/logout?retpath=https%3A%2F%2Fberu.ru%2F%3Floggedin%3D1');
-        
+
         //Validate city
         let cityName = await driver.findElement(
           By.xpath(
@@ -1148,90 +1148,106 @@ describe('Beru.ru authorization flow', function() {
       await driver.manage().deleteAllCookies();
       await driver.get('https://beru.ru/');
     });
-}); */
+});
 
 describe('Order management flow', function() {
-  this.timeout(0);  //отключаем таймауты (2 секунды) для тестов
-  let driver;
+    this.timeout(0) //отключаем таймауты (2 секунды) для тестов
+    let driver
 
-  before(async function() {
-    driver = await new Builder().forBrowser('chrome').build();
-    await driver.manage().window().maximize();
-  });
+    before(async function() {
+        driver = await new Builder().forBrowser('chrome').build()
+        await driver
+            .manage()
+            .window()
+            .maximize()
+    })
 
-  after(async function() {
-    //await driver.close();
-  });
+    after(async function() {
+        //await driver.close();
+    })
 
-  /* it('Check the electric toothbrushes section contains items', 
-      async function() {
-        await driver.get('https://beru.ru/');
+    it('Check the electric toothbrushes section contains items', async function() {
+        await driver.get('https://beru.ru/')
         try {
-          await driver.findElement(
-            By.className('_301_b-LBxR'))
-              .click();
-          let hygieneSection = await driver.findElement(
-            By.xpath(
-              '//li//span[@class="_19FPGVzRi9" and text()="Красота и гигиена"]'
-              ));
-          let listItemPos = await hygieneSection.getRect();
-          const actions = driver.actions({ bridge: true });
-          await actions.move({
-              x: Math.floor(listItemPos.x),
-              y: Math.floor(listItemPos.y),
-              duration: 500
-          }).perform();
-          await driver.findElement(
-              By.xpath(
-              '//span[@class="_27Pcf7STDj" and text() = "Электрические зубные щетки"]'))
-              .click();
-          await driver.sleep(2000);
-          let items = await driver.findElements(By.className('_1gDHxFdZ7E'));
-          items.length.should.be.above(0, 'There is no items on the page');
-        } catch(err) {
-          await driver.get('https://beru.ru/');
-          assert.fail(err);
+            await driver.findElement(By.className('_301_b-LBxR')).click()
+            let hygieneSection = await driver.findElement(
+                By.xpath(
+                    '//li//span[@class="_19FPGVzRi9" and text()="Красота и гигиена"]'
+                )
+            )
+            let listItemPos = await hygieneSection.getRect()
+            const actions = driver.actions({ bridge: true })
+            await actions
+                .move({
+                    x: Math.floor(listItemPos.x),
+                    y: Math.floor(listItemPos.y),
+                    duration: 500,
+                })
+                .perform()
+            await driver
+                .findElement(
+                    By.xpath(
+                        '//span[@class="_27Pcf7STDj" and text() = "Электрические зубные щетки"]'
+                    )
+                )
+                .click()
+            await driver.sleep(2000)
+            let items = await driver.findElements(By.className('_1gDHxFdZ7E'))
+            items.length.should.be.above(0, 'There is no items on the page')
+        } catch (err) {
+            await driver.get('https://beru.ru/')
+            assert.fail(err)
         }
 
         //return to initial state
-        await driver.get('https://beru.ru/');
-  }); */
+        await driver.get('https://beru.ru/')
+    })
 
-  it('Check the filter min value works properly', async function() {
-    await driver.get('https://beru.ru/catalog/elektricheskie-zubnye-shchetki/80961/list?hid=278374&track=menuleaf');
-    try {
-      await driver.findElement(
-        By.xpath(
-          '//div[@data-auto="filter-range-glprice"]/span[@data-auto="filter-range-min"]//input'))
-        .sendKeys('999');
-        await driver.sleep(1000);
-        
-        let counter = 0;
-        if (items.length > 0) {
-          do {
-            let items = await driver.findElements(
-              By.xpath('//*[@data-auto="price"]/span/span[1]'));
-            for (i = 0; i < items.length; i++) {
-              let price = await items[i].getText();
-              price.should.be.at.least(
-                999, 'Items with price below min value were found');
-              counter++;
+    it('Check the filter min value works properly', async function() {
+        await driver.get(
+            'https://beru.ru/catalog/elektricheskie-zubnye-shchetki/80961/list?hid=278374&track=menuleaf'
+        )
+        try {
+            await driver
+                .findElement(
+                    By.xpath(
+                        '//div[@data-auto="filter-range-glprice"]/span[@data-auto="filter-range-min"]//input'
+                    )
+                )
+                .sendKeys('999')
+            await driver.sleep(1000)
+
+            let counter = 0
+            if (items.length > 0) {
+                do {
+                    let items = await driver.findElements(
+                        By.xpath('//*[@data-auto="price"]/span/span[1]')
+                    )
+                    for (i = 0; i < items.length; i++) {
+                        let price = await items[i].getText()
+                        price.should.be.at.least(
+                            999,
+                            'Items with price below min value were found'
+                        )
+                        counter++
+                    }
+                    let nextBtn = await driver.findElements(
+                        By.xpath('//div[@data-auto="pagination-next"]/span')
+                    )
+                } while ((nextBtn.length = 1))
+            } else {
+                await driver.findElement(
+                    By.xpath(
+                        '//div[@class="_2QyTfBZosp _26mXJDBxtH" and text() = "Нет подходящих товаров"]'
+                    )
+                )
             }
-            let nextBtn = await driver.findElements(
-              By.xpath('//div[@data-auto="pagination-next"]/span'));
-          } while (nextBtn.length = 1);
-        } else {
-          await driver.findElement(
-            By.xpath(
-              '//div[@class="_2QyTfBZosp _26mXJDBxtH" and text() = "Нет подходящих товаров"]'));
+        } catch (err) {
+            await driver.get('https://beru.ru/')
+            assert.fail(err)
         }
 
-      } catch(err) {
-        await driver.get('https://beru.ru/');
-        assert.fail(err);
-      }
-
-      //return to initial state
-      await driver.get('https://beru.ru/');
-  });
-});
+        //return to initial state
+        await driver.get('https://beru.ru/')
+    })
+})
