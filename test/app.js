@@ -1567,4 +1567,54 @@ describe('Order management flow', function() {
     //return to initial state
     await driver.get('https://beru.ru/');
   });
+
+  it('Check the error message is displayed when filter is set incorrectly', async function() {
+    await driver.get(
+      'https://beru.ru/catalog/elektricheskie-zubnye-shchetki/80961/list?hid=278374&track=pieces'
+    );
+
+    try {
+      //fill the filter values and wait till filtered items load
+      let oldItem = await driver.findElement(
+        By.xpath('//*[@data-auto="price"]/span/span[1]')
+      );
+      await driver
+        .findElement(
+          By.xpath(
+            '//div[@data-auto="filter-range-glprice"]/span[@data-auto="filter-range-min"]//input'
+          )
+        )
+        .sendKeys('1999');
+
+      await driver
+        .findElement(
+          By.xpath(
+            '//div[@data-auto="filter-range-glprice"]/span[@data-auto="filter-range-max"]//input'
+          )
+        )
+        .sendKeys('999');
+
+      await driver.wait(
+        until.stalenessOf(oldItem),
+        10000,
+        'Failed to refresh items list'
+      );
+
+      await driver.wait(
+        until.elementLocated(
+          By.xpath(
+            '//div[@class="_2QyTfBZosp _26mXJDBxtH" and text() = "Нет подходящих товаров"]'
+          )
+        ),
+        10000,
+        'Error message is not displayed'
+      );
+    } catch (err) {
+      await driver.get('https://beru.ru/');
+      assert.fail(err);
+    }
+
+    //return to initial state
+    await driver.get('https://beru.ru/');
+  });
 });
