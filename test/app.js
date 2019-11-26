@@ -1617,4 +1617,89 @@ describe('Order management flow', function() {
     //return to initial state
     await driver.get('https://beru.ru/');
   });
+
+  it('Check the item can be successfully added to cart from items list', async function() {
+    await driver.get(
+      'https://beru.ru/catalog/elektricheskie-zubnye-shchetki/80961/list?hid=278374&track=pieces'
+    );
+
+    try {
+      //set the filter and wait until the items list is refreshed
+      let oldItem = await driver.findElement(
+        By.xpath('//*[@data-auto="price"]/span/span[1]')
+      );
+      await driver
+        .findElement(
+          By.xpath(
+            '//div[@data-auto="filter-range-glprice"]/span[@data-auto="filter-range-min"]//input'
+          )
+        )
+        .sendKeys('999');
+      await driver
+        .findElement(
+          By.xpath(
+            '//div[@data-auto="filter-range-glprice"]/span[@data-auto="filter-range-max"]//input'
+          )
+        )
+        .sendKeys('1999');
+      await driver.wait(
+        until.stalenessOf(oldItem),
+        10000,
+        'Failed to refresh items list'
+      );
+
+      //add the penultimate brush to cart
+      do {
+        let nextBtn = await driver.findElements(
+          By.xpath('//div[@data-auto="pagination-next"]/span')
+        );
+        if (nextBtn.length == 1) {
+          await nextBtn[0].click();
+          await driver.wait(
+            until.stalenessOf(nextBtn[0]),
+            10000,
+            'The items of the previous page remain visible'
+          );
+        }
+      } while (nextBtn.length == 1);
+
+      let itemsList = await driver.findElements(By.className('_1gDHxFdZ7E'));
+      let curItem = itemsList[itemsList.length - 2];
+      let priceTag = await curItem.findElement(
+        By.xpath('//*[@data-auto="price"]/span/span[1]')
+      );
+      let price = Number((await priceTag.getText()).replace(/ /g, ''));
+      let addBtn = await curItem.findElement(By.xpath('//button'));
+      await addBtn.click();
+      await driver.wait(
+        until.elementTextMatches(addBtn, 'В корзине'),
+        10000,
+        "The Add to cart button state wasn't changed"
+      );
+
+      //go to Cart
+      await driver
+        .findElement(By.xpath('//*[@data-auto="header-cart"]'))
+        .click();
+
+      let threshold = await driver.wait(
+        until.elementLocated(By.className('voCFmXKfcL')),
+        10000,
+        'Failed to locate free delivery threshold'
+      );
+      await driver.wait(until.elementIsVisible(threshold));
+      let remainderValue = Number(
+        (await threshold.getText()).replace(/[^\d]/g, '')
+      );
+      remainderValue.should.equal();
+    } catch (err) {
+      await driver.manage.deleteAllCookies();
+      await driver.get('https://beru.ru/');
+      assert.fail(err);
+    }
+
+    //return to initial state
+    await driver.manage.deleteAllCookies();
+    await driver.get('https://beru.ru/');
+  });
 });
