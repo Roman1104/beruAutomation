@@ -1684,16 +1684,21 @@ describe('Order management flow', function() {
         .findElements(By.xpath('//span[@data-auto="old-price"]/span[1]'))
         .getText();
       let oldPrice = Number(oldPriceText.replace(/ /g, '')); */
-    let addBtn = await curItem.findElement(By.className('_2w0qPDYwej'));
-    await addBtn.click();
+    await curItem.findElement(By.className('_2w0qPDYwej')).click();
     await driver.wait(
-      until.elementTextIs(addBtn, 'В корзине'),
+      async function() {
+        let btnText = await curItem
+          .findElement(By.className('_2w0qPDYwej'))
+          .getText();
+        console.log(btnText);
+        return btnText == 'В корзине';
+      },
       10000,
       "The Add to cart button state wasn't changed"
     );
 
     //go to Cart
-    await driver.sleep(1000);
+    await driver.sleep(2000);
     await driver
       .findElement(
         By.xpath('//span[@class="_1LEwf9X1Gy" and text()="Корзина"]')
@@ -1707,7 +1712,6 @@ describe('Order management flow', function() {
         'Failed to locate free delivery threshold'
       )
       .getText();
-    await driver.wait(until.elementIsVisible(remainderText));
     let remainderValue = Number(remainderText.replace(/[^\d]/g, ''));
     remainderValue.should.equal(
       2499 - price,
@@ -1748,7 +1752,7 @@ describe('Order management flow', function() {
       price + deliveryCost,
       'Total sum is calculated incorrectly'
     );
-    console.log(oldPrice, price, remainderValue, deliveryCost, total);
+    console.log(price, remainderValue, deliveryCost, total);
     /*         } catch (err) {
       await driver.manage().deleteAllCookies();
       await driver.get('https://beru.ru/');
