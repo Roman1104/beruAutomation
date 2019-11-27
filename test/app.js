@@ -5,7 +5,7 @@ const assert = chai.assert;
 const should = chai.should();
 const expect = chai.expect;
 
-describe('Beru.ru authorization flow', function() {
+/* describe('Beru.ru authorization flow', function() {
   this.timeout(0); //отключаем таймауты (2 секунды) для тестов
   let driver;
   let profileBtn;
@@ -1427,7 +1427,7 @@ describe('City selection flow', function() {
     await driver.manage().deleteAllCookies();
     await driver.get('https://beru.ru/');
   });
-});
+}); */
 
 describe('Order management flow', function() {
   this.timeout(0); //отключаем таймауты (2 секунды) для тестов
@@ -1442,10 +1442,10 @@ describe('Order management flow', function() {
   });
 
   after(async function() {
-    await driver.close();
+    //await driver.close();
   });
 
-  it('Check the electric toothbrushes section contains items', async function() {
+  /* it('Check the electric toothbrushes section contains items', async function() {
     await driver.get('https://beru.ru/');
     try {
       await driver.findElement(By.className('_301_b-LBxR')).click();
@@ -1471,7 +1471,9 @@ describe('Order management flow', function() {
         )
         .click();
       await driver.sleep(2000);
-      let items = await driver.findElements(By.className('_1gDHxFdZ7E'));
+      let items = await driver.findElements(
+        By.xpath('//div[@class="_3rWYRsam78"]//div[@class="_1gDHxFdZ7E"]')
+      );
       items.length.should.be.above(0, 'There is no items on the page');
     } catch (err) {
       await driver.get('https://beru.ru/');
@@ -1616,90 +1618,145 @@ describe('Order management flow', function() {
 
     //return to initial state
     await driver.get('https://beru.ru/');
-  });
+  }); */
 
   it('Check the item can be successfully added to cart from items list', async function() {
     await driver.get(
       'https://beru.ru/catalog/elektricheskie-zubnye-shchetki/80961/list?hid=278374&track=pieces'
     );
 
-    try {
-      //set the filter and wait until the items list is refreshed
-      let oldItem = await driver.findElement(
-        By.xpath('//*[@data-auto="price"]/span/span[1]')
-      );
-      await driver
-        .findElement(
-          By.xpath(
-            '//div[@data-auto="filter-range-glprice"]/span[@data-auto="filter-range-min"]//input'
-          )
+    //try {
+    await driver.sleep(8000);
+    //set the filter and wait until the items list is refreshed
+    let oldItem = await driver.findElement(
+      By.xpath('//*[@data-auto="price"]/span/span[1]')
+    );
+    await driver
+      .findElement(
+        By.xpath(
+          '//div[@data-auto="filter-range-glprice"]/span[@data-auto="filter-range-min"]//input'
         )
-        .sendKeys('999');
-      await driver
-        .findElement(
-          By.xpath(
-            '//div[@data-auto="filter-range-glprice"]/span[@data-auto="filter-range-max"]//input'
-          )
+      )
+      .sendKeys('999');
+    await driver
+      .findElement(
+        By.xpath(
+          '//div[@data-auto="filter-range-glprice"]/span[@data-auto="filter-range-max"]//input'
         )
-        .sendKeys('1999');
-      await driver.wait(
-        until.stalenessOf(oldItem),
-        10000,
-        'Failed to refresh items list'
-      );
+      )
+      .sendKeys('1999');
+    await driver.wait(
+      until.stalenessOf(oldItem),
+      10000,
+      'Failed to refresh items list'
+    );
 
-      //add the penultimate brush to cart
-      do {
-        let nextBtn = await driver.findElements(
-          By.xpath('//div[@data-auto="pagination-next"]/span')
+    //add the penultimate brush to cart
+    let nextBtn;
+    do {
+      nextBtn = await driver.findElements(
+        By.xpath('//div[@data-auto="pagination-next"]/span')
+      );
+      if (nextBtn.length == 1) {
+        await nextBtn[0].click();
+        await driver.wait(
+          until.stalenessOf(nextBtn[0]),
+          10000,
+          'The items of the previous page remain visible'
         );
-        if (nextBtn.length == 1) {
-          await nextBtn[0].click();
-          await driver.wait(
-            until.stalenessOf(nextBtn[0]),
-            10000,
-            'The items of the previous page remain visible'
-          );
-        }
-      } while (nextBtn.length == 1);
+      }
+    } while (nextBtn.length == 1);
 
-      let itemsList = await driver.findElements(By.className('_1gDHxFdZ7E'));
-      let curItem = itemsList[itemsList.length - 2];
-      let priceTag = await curItem.findElement(
-        By.xpath('//*[@data-auto="price"]/span/span[1]')
-      );
-      let price = Number((await priceTag.getText()).replace(/ /g, ''));
-      let addBtn = await curItem.findElement(By.xpath('//button'));
-      await addBtn.click();
-      await driver.wait(
-        until.elementTextMatches(addBtn, 'В корзине'),
-        10000,
-        "The Add to cart button state wasn't changed"
-      );
+    let itemsList = await driver.findElements(
+      By.xpath('//div[@class="_3rWYRsam78"]//div[@class="_1gDHxFdZ7E"]')
+    );
+    let curItem = itemsList[itemsList.length - 2];
+    await driver.wait(
+      until.elementIsVisible(curItem),
+      10000,
+      'Item is not visible'
+    );
+    let priceText = await curItem
+      .findElement(By.className('_1pTV0mQZJz _3LMhEMfZeH'))
+      .getText();
+    let price = Number(priceText.replace(/[^\d]/g, ''));
+    /*       let oldPriceText = await curItem
+        .findElements(By.xpath('//span[@data-auto="old-price"]/span[1]'))
+        .getText();
+      let oldPrice = Number(oldPriceText.replace(/ /g, '')); */
+    let addBtn = await curItem.findElement(By.className('_2w0qPDYwej'));
+    await addBtn.click();
+    await driver.wait(
+      until.elementTextIs(addBtn, 'В корзине'),
+      10000,
+      "The Add to cart button state wasn't changed"
+    );
 
-      //go to Cart
-      await driver
-        .findElement(By.xpath('//*[@data-auto="header-cart"]'))
-        .click();
+    //go to Cart
+    await driver.sleep(1000);
+    await driver
+      .findElement(
+        By.xpath('//span[@class="_1LEwf9X1Gy" and text()="Корзина"]')
+      )
+      .click();
 
-      let threshold = await driver.wait(
+    let remainderText = await driver
+      .wait(
         until.elementLocated(By.className('voCFmXKfcL')),
         10000,
         'Failed to locate free delivery threshold'
-      );
-      await driver.wait(until.elementIsVisible(threshold));
-      let remainderValue = Number(
-        (await threshold.getText()).replace(/[^\d]/g, '')
-      );
-      remainderValue.should.equal();
-    } catch (err) {
-      await driver.manage.deleteAllCookies();
+      )
+      .getText();
+    await driver.wait(until.elementIsVisible(remainderText));
+    let remainderValue = Number(remainderText.replace(/[^\d]/g, ''));
+    remainderValue.should.equal(
+      2499 - price,
+      'The amount left for free delivery is calculated incorrectly'
+    );
+    await driver
+      .findElement(
+        By.xpath(
+          '//span[@class="_2w0qPDYwej" and text()="Перейти к оформлению"'
+        )
+      )
+      .click();
+    let delivery = await driver.wait(
+      until.elementLocated(
+        By.xpath('//*[@class="s5wsZMKoea" and @data-auto="DELIVERY"')
+      ),
+      10000,
+      'The delivery options are not found'
+    );
+    await driver.wait(
+      until.elementIsVisible(delivery),
+      5000,
+      'Delivery options are not visible'
+    );
+    let deliveryCostText = await delivery
+      .findElement(
+        By.xpath(
+          '//span[@class="_3l-uEDOaBN tdrs43E7Xn _3HJsMt3YC_ _3xdjKs3WMN"][2]'
+        )
+      )
+      .getText();
+    let deliveryCost = Number(deliveryCostText.replace(/[^\d]/g, ''));
+    let totalText = await driver
+      .findElement(By.className('_1oBlNqVHPq'))
+      .getText();
+    let total = Number(totalText.replace(/[^\d]/g, ''));
+    total.should.equal(
+      price + deliveryCost,
+      'Total sum is calculated incorrectly'
+    );
+    console.log(oldPrice, price, remainderValue, deliveryCost, total);
+    /*         } catch (err) {
+      await driver.manage().deleteAllCookies();
       await driver.get('https://beru.ru/');
       assert.fail(err);
-    }
+    } */
 
     //return to initial state
-    await driver.manage.deleteAllCookies();
-    await driver.get('https://beru.ru/');
+    //await driver.manage().deleteAllCookies();
+    //await driver.get('https://beru.ru/');
   });
 });
