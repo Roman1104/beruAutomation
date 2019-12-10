@@ -38,7 +38,7 @@ describe('Beru.ru authorization flow', function() {
       await driver.get('https://beru.ru/');
       let homePage = new HomePage(driver);
       //profileBtn = await driver.findElement(By.className('_3odNv2Dw2n'));
-      let btnText = homePage.getProfileBtnText();
+      let btnText = await homePage.getProfileBtnText();
       btnText.should.equal('Войти в аккаунт', "Button title doesn't match:");
     } catch (err) {
       await driver.get('https://beru.ru/');
@@ -50,7 +50,7 @@ describe('Beru.ru authorization flow', function() {
     try {
       await driver.get('https://beru.ru/');
       let homePage = new HomePage(driver);
-      homePage.clickProfileButton();
+      await homePage.clickProfileButton();
       //await driver.findElement(By.className('_3odNv2Dw2n')).click();
       let curUrl = await driver.getCurrentUrl();
       curUrl.should.contain(
@@ -72,8 +72,8 @@ describe('Beru.ru authorization flow', function() {
         'https://beru.ru/login?retpath=https%3A%2F%2Fberu.ru%2F%3Fncrnd%3D8255'
       );
       let authPage = new AuthPage(driver);
-      authPage.submitLoginWithUI('testmalakhov2019@yandex.ru');
-      authPage.submitPasswordWithUI('38tnrWW!QiNRqJv');
+      await authPage.submitLoginWithUI('testmalakhov2019@yandex.ru');
+      await authPage.submitPasswordWithUI('38tnrWW!QiNRqJv');
     } catch (err) {
       await driver.get('https://beru.ru/');
       assert.fail(err);
@@ -83,10 +83,10 @@ describe('Beru.ru authorization flow', function() {
       let curUrl = await driver.getCurrentUrl();
       curUrl.should.contain('beru.ru', 'Failed to redirect back to the site');
       let homePage = new HomePage(driver);
-      let btnText = homePage.getProfileBtnText();
+      let btnText = await homePage.getProfileBtnText();
       btnText.should.equal('Мой профиль', "Button title doesn't match:");
 
-      let profileName = homePage.getProfileName();
+      let profileName = await homePage.getProfileName();
       profileName.should.equal(
         'Automation Test Malakhov 2019',
         "Profile name doesn't match:"
@@ -116,8 +116,8 @@ describe('Beru.ru authorization flow', function() {
         'https://beru.ru/login?retpath=https%3A%2F%2Fberu.ru%2F%3Fncrnd%3D8255'
       );
       let authPage = new AuthPage(driver);
-      authPage.submitLoginWithKeyboard('testmalakhov2019@yandex.ru');
-      authPage.submitPasswordWithKeyboard('38tnrWW!QiNRqJv');
+      await authPage.submitLoginWithKeyboard('testmalakhov2019@yandex.ru');
+      await authPage.submitPasswordWithKeyboard('38tnrWW!QiNRqJv');
     } catch (err) {
       await driver.get('https://beru.ru/');
       assert.fail(err);
@@ -127,10 +127,10 @@ describe('Beru.ru authorization flow', function() {
       let curUrl = await driver.getCurrentUrl();
       curUrl.should.contain('beru.ru', 'Failed to redirect back to the site');
       let homePage = new HomePage(driver);
-      let btnText = homePage.getProfileBtnText();
+      let btnText = await homePage.getProfileBtnText();
       btnText.should.equal('Мой профиль', "Button title doesn't match:");
 
-      let profileName = homePage.getProfileName();
+      let profileName = await homePage.getProfileName();
       profileName.should.equal(
         'Automation Test Malakhov 2019',
         "Profile name doesn't match:"
@@ -161,9 +161,9 @@ describe('Beru.ru authorization flow', function() {
       );
       let authPage = new AuthPage(driver);
 
-      authPage.submitLoginWithKeyboard('bkcglkhlcvb');
+      await authPage.submitLoginWithKeyboard('bkcglkhlcvb');
 
-      let errorText = authPage.getErrorMessageText();
+      let errorText = await authPage.getErrorMessageText();
       errorText.should.equal(
         'Такого аккаунта нет',
         'Incorrect error message text'
@@ -184,9 +184,9 @@ describe('Beru.ru authorization flow', function() {
       );
       let authPage = new AuthPage(driver);
 
-      authPage.submitLoginWithKeyboard('1111');
+      await authPage.submitLoginWithKeyboard('1111');
 
-      let errorText = authPage.getErrorMessageText();
+      let errorText = await authPage.getErrorMessageText();
       errorText.should.equal(
         'Такой логин не подойдет',
         'Incorrect error message text'
@@ -207,9 +207,9 @@ describe('Beru.ru authorization flow', function() {
       );
       let authPage = new AuthPage(driver);
 
-      authPage.clickSubmitLoginBtn();
+      await authPage.clickSubmitLoginBtn();
 
-      let errorText = authPage.getErrorMessageText();
+      let errorText = await authPage.getErrorMessageText();
       errorText.should.equal('Логин не указан', 'Incorrect error message text');
     } catch (err) {
       await driver.get('https://beru.ru/');
@@ -226,7 +226,7 @@ describe('Beru.ru authorization flow', function() {
         'https://beru.ru/login?retpath=https%3A%2F%2Fberu.ru%2F%3Fncrnd%3D8255'
       );
       let authPage = new AuthPage(driver);
-      authPage.clickLoginPageBackBtn;
+      await authPage.clickLoginPageBackBtn;
       let curUrl = await driver.getCurrentUrl();
       curUrl.should.contain(
         'beru.ru',
@@ -249,8 +249,8 @@ describe('Beru.ru authorization flow', function() {
       );
       let authPage = new AuthPage(driver);
 
-      authPage.submitLoginWithKeyboard('testmalakhov2019@yandex.ru');
-      authPage.submitPasswordWithKeyboard('38tnrWW');
+      await authPage.submitLoginWithKeyboard('testmalakhov2019@yandex.ru');
+      await authPage.submitPasswordWithKeyboard('38tnrWW');
     } catch (err) {
       await driver.get('https://beru.ru/');
       assert.fail(err);
@@ -263,7 +263,7 @@ describe('Beru.ru authorization flow', function() {
         'Unexpected redirect occured'
       );
       let authPage = new AuthPage(driver);
-      let errorText = authPage.getErrorMessageText();
+      let errorText = await authPage.getErrorMessageText();
       errorText.should.equal('Неверный пароль', 'Incorrect error message text');
     } catch (err) {
       await driver.get(
@@ -287,8 +287,8 @@ describe('Beru.ru authorization flow', function() {
       );
       let authPage = new AuthPage(driver);
 
-      authPage.submitLoginWithKeyboard('testmalakhov2019@yandex.ru');
-      authPage.clickSubmitPasswordBtn();
+      await authPage.submitLoginWithKeyboard('testmalakhov2019@yandex.ru');
+      await authPage.clickSubmitPasswordBtn();
     } catch (err) {
       await driver.get('https://beru.ru/');
       assert.fail(err);
@@ -301,7 +301,7 @@ describe('Beru.ru authorization flow', function() {
         'Unexpected redirect occured'
       );
       let authPage = new AuthPage(driver);
-      let errorText = authPage.getErrorMessageText();
+      let errorText = await authPage.getErrorMessageText();
       errorText.should.equal(
         'Пароль не указан',
         'Incorrect error message text'
@@ -322,7 +322,7 @@ describe('Beru.ru authorization flow', function() {
   });
 });
 
-/* describe('City selection flow', function() {
+describe('City selection flow', function() {
   this.timeout(0); //отключаем таймауты (2 секунды) для тестов
   let driver;
 
@@ -1472,7 +1472,7 @@ describe('Order management flow', function() {
         .findElement(By.className('_1pTV0mQZJz _3LMhEMfZeH'))
         .getText();
       let price = Number(priceText.replace(/[^\d]/g, ''));
-             let oldPriceText = await curItem
+      let oldPriceText = await curItem
         .findElements(By.xpath('//span[@data-auto="old-price"]/span[1]'))
         .getText();
       let oldPrice = Number(oldPriceText.replace(/ /g, ''));
@@ -1585,10 +1585,10 @@ describe('Order management flow', function() {
         .findElement(By.className('_1pTV0mQZJz _3LMhEMfZeH'))
         .getText();
       let price = Number(priceText.replace(/[^\d]/g, ''));
-            let oldPriceText = await curItem
-      .findElements(By.xpath('//span[@data-auto="old-price"]/span[1]'))
-      .getText();
-    let oldPrice = Number(oldPriceText.replace(/ /g, ''));
+      let oldPriceText = await curItem
+        .findElements(By.xpath('//span[@data-auto="old-price"]/span[1]'))
+        .getText();
+      let oldPrice = Number(oldPriceText.replace(/ /g, ''));
       await curItem.findElement(By.className('_2w0qPDYwej')).click();
       await driver.wait(
         async function() {
@@ -1664,4 +1664,4 @@ describe('Order management flow', function() {
     await driver.manage().deleteAllCookies();
     await driver.get('https://beru.ru/');
   });
-}); */
+});
