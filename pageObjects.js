@@ -4,6 +4,15 @@ class HomePage {
     this.driver = driver;
     this.profileBtnLocator = By.className('_3odNv2Dw2n');
     this.profileTitleLocator = By.className('_2I5v9t-gmG');
+    this.deliveryCityLocator = By.xpath(
+      '//div[@class="EsYwYP7LNa"]/span[@class="-soJAyMJBd"]/span[@class="_2XJ6yiRp5w"]'
+    );
+    this.cityInputLocator = By.xpath(
+      '//div[@class="_1U2ErCeoqP"]//input[@class="_2JDvXzYsUI"]'
+    );
+    this.citySuggestLocator = cityName => {
+      return By.xpath(`//div[@class="_229JDbp_Z8" and text()="${cityName}"]`);
+    };
   }
 
   async locateProfileBtn() {
@@ -23,10 +32,46 @@ class HomePage {
       throw err;
     }
   }
+
+  async locateDeliveryCity() {
+    try {
+      let deliveryCity = await this.driver.wait(
+        until.elementLocated(this.deliveryCityLocator),
+        10000,
+        'Delivery city is not found'
+      );
+      await this.driver.wait(
+        until.elementIsVisible(deliveryCity),
+        10000,
+        'Delivery city is not visible'
+      );
+      return deliveryCity;
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  async locateCityInput() {
+    try {
+      let deliveryCityInput = await this.driver.wait(
+        until.elementLocated(this.cityInputLocator),
+        10000,
+        'Delivery city input is not found'
+      );
+      await this.driver.wait(
+        until.elementIsVisible(deliveryCityInput),
+        10000,
+        'Delivery city input is not visible'
+      );
+      return deliveryCityInput;
+    } catch (err) {
+      throw err;
+    }
+  }
+
   async getProfileBtnText() {
     try {
       let profileBtn = await this.locateProfileBtn();
-      console.log(profileBtn);
       return await profileBtn.getText();
     } catch (err) {
       throw err;
@@ -59,6 +104,70 @@ class HomePage {
     } catch (err) {
       throw err;
     }
+  }
+
+  async getDeliveryCityName() {
+    try {
+      let deliveryCity = await this.locateDeliveryCity();
+      return await deliveryCity.getText();
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  async clickDeliveryCity() {
+    try {
+      let deliveryCity = await this.locateDeliveryCity();
+      await deliveryCity.click();
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  async enterNewDeliveryCity(cityName) {
+    await this.clickDeliveryCity();
+    let cityInput = await this.locateCityInput();
+    await cityInput.sendKeys(Key.CONTROL, 'a', Key.NULL, Key.BACK_SPACE);
+    for (let i = 0; i < cityName.length; i++) {
+      await cityInput.sendKeys(cityName[i]);
+      await this.driver.sleep(30);
+    }
+    await this.driver.sleep(200);
+  }
+
+  async getAllSuggestsList() {
+    return await this.driver.findElements(By.className('_229JDbp_Z8'));
+  }
+
+  async changeDeliveryCity(cityName) {
+    await this.enterNewDeliveryCity(cityName);
+    //capitalize city argument for searching suggests
+    let city =
+      cityName.charAt(0).toUpperCase() + cityName.slice(1).toLowerCase();
+    let citySuggest = await this.driver.wait(
+      until.elementLocated(this.citySuggestLocator(city)),
+      10000,
+      'City suggest is not found'
+    );
+    await this.driver.wait(
+      until.elementIsVisible(citySuggest),
+      10000,
+      'City suggest is not visible'
+    );
+    await citySuggest.click();
+    let okBtn = await this.driver.wait(
+      until.elementLocated(
+        By.xpath('//span[@class="_2w0qPDYwej" and text()="Хорошо"]')
+      ),
+      4000,
+      'OK button is not found'
+    );
+    await this.driver.wait(
+      until.elementIsVisible(okBtn),
+      4000,
+      'OK button is not visible'
+    );
+    await okBtn.click();
   }
 }
 
@@ -115,12 +224,12 @@ class AuthPage {
       let submitLoginBtn = await this.driver.wait(
         until.elementLocated(this.submitLoginBtnLocator),
         5000,
-        'Failed to locate login field in the DOM'
+        'Failed to locate submit login button in the DOM'
       );
       await this.driver.wait(
         until.elementIsVisible(submitLoginBtn),
         5000,
-        'Login field is not visible'
+        'Submit login button is not visible'
       );
       return submitLoginBtn;
     } catch (err) {
@@ -133,12 +242,12 @@ class AuthPage {
       let submitPasswordBtn = await this.driver.wait(
         until.elementLocated(this.submitPasswordBtnLocator),
         5000,
-        'Failed to locate login field in the DOM'
+        'Failed to locate submit password button in the DOM'
       );
       await this.driver.wait(
         until.elementIsVisible(submitPasswordBtn),
         5000,
-        'Login field is not visible'
+        'submit password button is not visible'
       );
       return submitPasswordBtn;
     } catch (err) {
