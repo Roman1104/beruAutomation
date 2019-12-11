@@ -363,7 +363,6 @@ describe('City selection flow', function() {
       await driver.get('https://beru.ru/');
       let homePage = new HomePage(driver);
       await homePage.changeDeliveryCity('хвалынск');
-      await driver.sleep(500);
       let cityName = await homePage.getDeliveryCityName();
       cityName.should.equal(
         'Хвалынск',
@@ -397,41 +396,12 @@ describe('City selection flow', function() {
   });
 
   it('Check "Delete" button erases input field', async function() {
-    await driver.get('https://beru.ru/');
     try {
-      let city = await driver.findElement(
-        By.xpath(
-          '//div[@class="EsYwYP7LNa"]/span[@class="-soJAyMJBd"]/span[@class="_2XJ6yiRp5w"]'
-        )
-      );
-      await city.click();
-      let inputField = await driver.findElement(
-        By.xpath('//div[@class="_1U2ErCeoqP"]//input[@class="_2JDvXzYsUI"]')
-      );
-      await inputField.sendKeys(
-        Key.CONTROL,
-        'a',
-        Key.NULL,
-        Key.BACK_SPACE,
-        'тест'
-      );
-
-      let inputContainer = await driver.findElement(
-        By.className('_8iW7gwBP58')
-      );
-      let cssWidth = await inputContainer.getCssValue('width');
-      let containerWidth = cssWidth.match(/\d+/)[0];
-      const actions = driver.actions({ bridge: true });
-      await actions
-        .move({
-          x: Math.floor(containerWidth / 2 - 22),
-          y: 0,
-          duration: 500,
-          origin: inputContainer,
-        })
-        .click()
-        .perform();
-      let fieldValue = await inputField.getAttribute('value');
+      await driver.get('https://beru.ru/');
+      let homePage = new HomePage(driver);
+      await homePage.enterNewDeliveryCity('тест');
+      await homePage.clickEraseCityInput();
+      let fieldValue = await homePage.getCityInputValue();
       fieldValue.should.equal('', 'The input field is not cleared');
     } catch (err) {
       await driver.get('https://beru.ru/');
@@ -443,62 +413,12 @@ describe('City selection flow', function() {
   });
 
   it('Check the delivery city persists after refreshing', async function() {
-    await driver.get('https://beru.ru/');
     try {
-      let city = await driver.findElement(
-        By.xpath(
-          '//div[@class="EsYwYP7LNa"]/span[@class="-soJAyMJBd"]/span[@class="_2XJ6yiRp5w"]'
-        )
-      );
-      await city.click();
-
-      let inputField = await driver.findElement(
-        By.xpath('//div[@class="_1U2ErCeoqP"]//input[@class="_2JDvXzYsUI"]')
-      );
-      await inputField.sendKeys(Key.CONTROL, 'a', Key.NULL, Key.BACK_SPACE);
-
-      let query = ['х', 'в', 'а', 'л', 'ы', 'н', 'с', 'к'];
-      for (i = 0; i < query.length; i++) {
-        await inputField.sendKeys(query[i]);
-        await driver.sleep(30);
-      }
-
-      let suggest = await driver.wait(
-        until.elementLocated(
-          By.xpath('//div[@class="_229JDbp_Z8" and text()="Хвалынск"]')
-        ),
-        2000,
-        "Quick suggests aren't found"
-      );
-      await driver.wait(
-        until.elementIsVisible(suggest),
-        3000,
-        'Cities suggests list is not visible'
-      );
-      await suggest.click();
-
-      let okBtn = await driver.wait(
-        until.elementLocated(
-          By.xpath('//span[@class="_2w0qPDYwej" and text()="Хорошо"]')
-        ),
-        4000,
-        'OK button is not found'
-      );
-      await driver.wait(
-        until.elementIsVisible(okBtn),
-        4000,
-        'OK button is not visible'
-      );
-      okBtn.click();
-      await driver.sleep(500);
       await driver.get('https://beru.ru/');
-      city = await driver.findElement(
-        By.xpath(
-          '//div[@class="EsYwYP7LNa"]/span[@class="-soJAyMJBd"]/span[@class="_2XJ6yiRp5w"]'
-        )
-      );
-
-      let cityName = await city.getText();
+      let homePage = new HomePage(driver);
+      await homePage.changeDeliveryCity('хвалынск');
+      await driver.get('https://beru.ru/');
+      let cityName = await homePage.getDeliveryCityName();
       cityName.should.equal('Хвалынск', 'The delivery city has been reset');
     } catch (err) {
       await driver.manage().deleteAllCookies();
@@ -512,14 +432,10 @@ describe('City selection flow', function() {
   });
 
   it('Check the city changed correctly when "Назад" was pressed', async function() {
-    await driver.get('https://beru.ru/');
     try {
-      let city = await driver.findElement(
-        By.xpath(
-          '//div[@class="EsYwYP7LNa"]/span[@class="-soJAyMJBd"]/span[@class="_2XJ6yiRp5w"]'
-        )
-      );
-      await city.click();
+      await driver.get('https://beru.ru/');
+      let homePage = new HomePage(driver);
+      await homePage.clickDeliveryCity();
 
       let inputField = await driver.findElement(
         By.xpath('//div[@class="_1U2ErCeoqP"]//input[@class="_2JDvXzYsUI"]')
@@ -604,7 +520,7 @@ describe('City selection flow', function() {
         )
       );
 
-      let cityName = await city.getText();
+      let cityName = await homePage.getDeliveryCityName();
       cityName.should.equal('Энгельс', 'The delivery city has been reset');
     } catch (err) {
       await driver.manage().deleteAllCookies();

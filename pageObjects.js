@@ -125,49 +125,101 @@ class HomePage {
   }
 
   async enterNewDeliveryCity(cityName) {
-    await this.clickDeliveryCity();
-    let cityInput = await this.locateCityInput();
-    await cityInput.sendKeys(Key.CONTROL, 'a', Key.NULL, Key.BACK_SPACE);
-    for (let i = 0; i < cityName.length; i++) {
-      await cityInput.sendKeys(cityName[i]);
-      await this.driver.sleep(30);
+    try {
+      await this.clickDeliveryCity();
+      let cityInput = await this.locateCityInput();
+      await cityInput.sendKeys(Key.CONTROL, 'a', Key.NULL, Key.BACK_SPACE);
+      for (let i = 0; i < cityName.length; i++) {
+        await cityInput.sendKeys(cityName[i]);
+        await this.driver.sleep(30);
+      }
+      await this.driver.sleep(200);
+    } catch (err) {
+      throw err;
     }
-    await this.driver.sleep(200);
   }
 
   async getAllSuggestsList() {
-    return await this.driver.findElements(By.className('_229JDbp_Z8'));
+    try {
+      return await this.driver.findElements(By.className('_229JDbp_Z8'));
+    } catch (err) {
+      throw err;
+    }
   }
 
   async changeDeliveryCity(cityName) {
-    await this.enterNewDeliveryCity(cityName);
-    //capitalize city argument for searching suggests
-    let city =
-      cityName.charAt(0).toUpperCase() + cityName.slice(1).toLowerCase();
-    let citySuggest = await this.driver.wait(
-      until.elementLocated(this.citySuggestLocator(city)),
-      10000,
-      'City suggest is not found'
-    );
-    await this.driver.wait(
-      until.elementIsVisible(citySuggest),
-      10000,
-      'City suggest is not visible'
-    );
-    await citySuggest.click();
-    let okBtn = await this.driver.wait(
-      until.elementLocated(
-        By.xpath('//span[@class="_2w0qPDYwej" and text()="Хорошо"]')
-      ),
-      4000,
-      'OK button is not found'
-    );
-    await this.driver.wait(
-      until.elementIsVisible(okBtn),
-      4000,
-      'OK button is not visible'
-    );
-    await okBtn.click();
+    try {
+      await this.enterNewDeliveryCity(cityName);
+      //capitalize city argument for searching suggests
+      let city =
+        cityName.charAt(0).toUpperCase() + cityName.slice(1).toLowerCase();
+      let citySuggest = await this.driver.wait(
+        until.elementLocated(this.citySuggestLocator(city)),
+        10000,
+        'City suggest is not found'
+      );
+      await this.driver.wait(
+        until.elementIsVisible(citySuggest),
+        10000,
+        'City suggest is not visible'
+      );
+      await citySuggest.click();
+      let okBtn = await this.driver.wait(
+        until.elementLocated(
+          By.xpath('//span[@class="_2w0qPDYwej" and text()="Хорошо"]')
+        ),
+        4000,
+        'OK button is not found'
+      );
+      await this.driver.wait(
+        until.elementIsVisible(okBtn),
+        4000,
+        'OK button is not visible'
+      );
+      await okBtn.click();
+      await this.driver.sleep(500);
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  async getCityInputValue() {
+    try {
+      let inputField = await this.locateCityInput();
+      return await inputField.getAttribute('value');
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  async clickEraseCityInput() {
+    try {
+      let inputContainer = await this.driver.wait(
+        until.elementLocated(By.className('_8iW7gwBP58')),
+        10000,
+        'City input container not found'
+      );
+      await this.driver.wait(
+        until.elementIsVisible(inputContainer),
+        10000,
+        'City input container is not visible'
+      );
+      await inputContainer.click();
+      let cssWidth = await inputContainer.getCssValue('width');
+      let containerWidth = cssWidth.match(/\d+/)[0];
+      const actions = this.driver.actions({ bridge: true });
+      await actions
+        .move({
+          x: Math.floor(containerWidth / 2 - 22),
+          y: 0,
+          duration: 500,
+          origin: inputContainer,
+        })
+        .click()
+        .perform();
+    } catch (err) {
+      throw err;
+    }
   }
 }
 
