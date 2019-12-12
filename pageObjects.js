@@ -4,6 +4,9 @@ class HomePage {
     this.driver = driver;
     this.profileBtnLocator = By.className('_3odNv2Dw2n');
     this.profileTitleLocator = By.className('_2I5v9t-gmG');
+    this.profileCityLocator = By.xpath(
+      '//div[@id="region"]//span[contains(@class,"_3ioN70chUh")]/span[contains(@class,"_3l-uEDOaBN")]'
+    );
     this.deliveryCityLocator = By.xpath(
       '//div[@class="EsYwYP7LNa"]/span[@class="-soJAyMJBd"]/span[@class="_2XJ6yiRp5w"]'
     );
@@ -13,6 +16,12 @@ class HomePage {
     this.citySuggestLocator = cityName => {
       return By.xpath(`//div[@class="_229JDbp_Z8" and text()="${cityName}"]`);
     };
+    this.confirmCityChangeBtnLocator = By.xpath(
+      '//span[@class="_2w0qPDYwej" and text()="Хорошо"]'
+    );
+    this.cityChangeBackBtnLocator = By.xpath(
+      '//span[@class="_2w0qPDYwej" and text()="Назад"]'
+    );
   }
 
   async locateProfileBtn() {
@@ -28,6 +37,24 @@ class HomePage {
         'Profile button is not visible'
       );
       return profileBtn;
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  async locateProfileCity() {
+    try {
+      let profileCity = await this.driver.wait(
+        until.elementLocated(this.profileCityLocator),
+        10000,
+        'Profile (settings) city is not found'
+      );
+      await this.driver.wait(
+        until.elementIsVisible(profileCity),
+        10000,
+        'Profile city is not visible'
+      );
+      return profileCity;
     } catch (err) {
       throw err;
     }
@@ -55,15 +82,51 @@ class HomePage {
     try {
       let deliveryCityInput = await this.driver.wait(
         until.elementLocated(this.cityInputLocator),
-        10000,
+        3000,
         'Delivery city input is not found'
       );
       await this.driver.wait(
         until.elementIsVisible(deliveryCityInput),
-        10000,
+        3000,
         'Delivery city input is not visible'
       );
       return deliveryCityInput;
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  async locateConfirmCityChangeBtn() {
+    try {
+      let okBtn = await this.driver.wait(
+        until.elementLocated(this.confirmCityChangeBtnLocator),
+        3000,
+        'OK button is not found'
+      );
+      await this.driver.wait(
+        until.elementIsVisible(okBtn),
+        3000,
+        'OK button is not visible'
+      );
+      return okBtn;
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  async locateCityChangeBackBtn() {
+    try {
+      let backBtn = await this.driver.wait(
+        until.elementLocated(this.cityChangeBackBtnLocator),
+        3000,
+        'Back button is not found'
+      );
+      await this.driver.wait(
+        until.elementIsVisible(backBtn),
+        3000,
+        'Back button is not visible'
+      );
+      return backBtn;
     } catch (err) {
       throw err;
     }
@@ -106,6 +169,20 @@ class HomePage {
     }
   }
 
+  async goToSettings() {
+    try {
+      await this.driver.get('https://beru.ru/my/settings?track=menu');
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  async getProfileCityValue() {
+    await this.goToSettings();
+    let profileCity = await this.locateProfileCity();
+    return await profileCity.getText();
+  }
+
   async getDeliveryCityName() {
     try {
       let deliveryCity = await this.locateDeliveryCity();
@@ -126,7 +203,6 @@ class HomePage {
 
   async enterNewDeliveryCity(cityName) {
     try {
-      await this.clickDeliveryCity();
       let cityInput = await this.locateCityInput();
       await cityInput.sendKeys(Key.CONTROL, 'a', Key.NULL, Key.BACK_SPACE);
       for (let i = 0; i < cityName.length; i++) {
@@ -147,7 +223,7 @@ class HomePage {
     }
   }
 
-  async changeDeliveryCity(cityName) {
+  async enterCityAndClickSuggest(cityName) {
     try {
       await this.enterNewDeliveryCity(cityName);
       //capitalize city argument for searching suggests
@@ -164,20 +240,16 @@ class HomePage {
         'City suggest is not visible'
       );
       await citySuggest.click();
-      let okBtn = await this.driver.wait(
-        until.elementLocated(
-          By.xpath('//span[@class="_2w0qPDYwej" and text()="Хорошо"]')
-        ),
-        4000,
-        'OK button is not found'
-      );
-      await this.driver.wait(
-        until.elementIsVisible(okBtn),
-        4000,
-        'OK button is not visible'
-      );
-      await okBtn.click();
-      await this.driver.sleep(500);
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  async changeDeliveryCity(cityName) {
+    try {
+      await this.clickDeliveryCity();
+      await this.enterCityAndClickSuggest(cityName);
+      await this.clickConfirmCityChangeBtn();
     } catch (err) {
       throw err;
     }
@@ -217,6 +289,33 @@ class HomePage {
         })
         .click()
         .perform();
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  async clickConfirmCityChangeBtn() {
+    try {
+      let okBtn = await this.locateConfirmCityChangeBtn();
+      await okBtn.click();
+      await this.driver.sleep(300);
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  async clickCityChangeBackBtn() {
+    try {
+      let backBtn = await this.locateCityChangeBackBtn();
+      await backBtn.click();
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  async closePopupWindow() {
+    try {
+      await this.driver.actions().sendKeys(Key.ESCAPE);
     } catch (err) {
       throw err;
     }
@@ -397,6 +496,20 @@ class AuthPage {
       );
 
       return await errorBlock.getText();
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  async authentificateUser(login, password) {
+    try {
+      await this.submitLoginWithKeyboard(login);
+      await this.submitPasswordWithKeyboard(password);
+      let curUrl = await this.driver.getCurrentUrl();
+      if (!curUrl.includes('https://beru.ru/')) {
+        let errorText = await this.getErrorMessageText();
+        throw errorText;
+      }
     } catch (err) {
       throw err;
     }

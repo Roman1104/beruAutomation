@@ -383,6 +383,7 @@ describe('City selection flow', function() {
     try {
       await driver.get('https://beru.ru/');
       let homePage = new HomePage(driver);
+      await homePage.clickDeliveryCity();
       await homePage.enterNewDeliveryCity('йцкуе');
       let suggests = await homePage.getAllSuggestsList();
       suggests.length.should.equal(0, 'Unexpected suggests are displayed');
@@ -399,6 +400,7 @@ describe('City selection flow', function() {
     try {
       await driver.get('https://beru.ru/');
       let homePage = new HomePage(driver);
+      await homePage.clickDeliveryCity();
       await homePage.enterNewDeliveryCity('тест');
       await homePage.clickEraseCityInput();
       let fieldValue = await homePage.getCityInputValue();
@@ -436,91 +438,12 @@ describe('City selection flow', function() {
       await driver.get('https://beru.ru/');
       let homePage = new HomePage(driver);
       await homePage.clickDeliveryCity();
-
-      let inputField = await driver.findElement(
-        By.xpath('//div[@class="_1U2ErCeoqP"]//input[@class="_2JDvXzYsUI"]')
-      );
-      await inputField.sendKeys(Key.CONTROL, 'a', Key.NULL, Key.BACK_SPACE);
-
-      let query = ['х', 'в', 'а', 'л', 'ы', 'н', 'с', 'к'];
-      for (i = 0; i < query.length; i++) {
-        await inputField.sendKeys(query[i]);
-        await driver.sleep(30);
-      }
-
-      let suggest = await driver.wait(
-        until.elementLocated(
-          By.xpath('//div[@class="_229JDbp_Z8" and text()="Хвалынск"]')
-        ),
-        2000,
-        "Quick suggests aren't found"
-      );
-      await driver.wait(
-        until.elementIsVisible(suggest),
-        3000,
-        'Cities suggests list is not visible'
-      );
-      await suggest.click();
-
-      let backBtn = await driver.wait(
-        until.elementLocated(
-          By.xpath('//span[@class="_2w0qPDYwej" and text()="Назад"]')
-        ),
-        4000,
-        'Back button is not found'
-      );
-      await driver.wait(
-        until.elementIsVisible(backBtn),
-        4000,
-        'Back button is not visible'
-      );
-      await backBtn.click();
-      inputField = await driver.findElement(
-        By.xpath('//div[@class="_1U2ErCeoqP"]//input[@class="_2JDvXzYsUI"]')
-      );
-      await inputField.sendKeys(Key.CONTROL, 'a', Key.NULL, Key.BACK_SPACE);
-
-      query = ['э', 'н', 'г', 'е', 'л'];
-      for (i = 0; i < query.length; i++) {
-        await inputField.sendKeys(query[i]);
-        await driver.sleep(30);
-      }
-
-      suggest = await driver.wait(
-        until.elementLocated(
-          By.xpath('//div[@class="_229JDbp_Z8" and text()="Энгельс"]')
-        ),
-        2000,
-        "Quick suggests aren't found"
-      );
-      await driver.wait(
-        until.elementIsVisible(suggest),
-        3000,
-        'Cities suggests list is not visible'
-      );
-      await suggest.click();
-
-      let okBtn = await driver.wait(
-        until.elementLocated(
-          By.xpath('//span[@class="_2w0qPDYwej" and text()="Хорошо"]')
-        ),
-        4000,
-        'OK button is not found'
-      );
-      await driver.wait(
-        until.elementIsVisible(okBtn),
-        4000,
-        'OK button is not visible'
-      );
-      await okBtn.click();
-      await driver.sleep(500);
-      city = await driver.findElement(
-        By.xpath(
-          '//div[@class="EsYwYP7LNa"]/span[@class="-soJAyMJBd"]/span[@class="_2XJ6yiRp5w"]'
-        )
-      );
-
+      await homePage.enterCityAndClickSuggest('хвалынск');
+      await homePage.clickCityChangeBackBtn();
+      await homePage.enterCityAndClickSuggest('энгельс');
+      await homePage.clickConfirmCityChangeBtn();
       let cityName = await homePage.getDeliveryCityName();
+      console.log(cityName);
       cityName.should.equal('Энгельс', 'The delivery city has been reset');
     } catch (err) {
       await driver.manage().deleteAllCookies();
@@ -534,58 +457,14 @@ describe('City selection flow', function() {
   });
 
   it('Check the city is not changed if the flow was interrupted', async function() {
-    await driver.get('https://beru.ru/');
     try {
-      let city = await driver.findElement(
-        By.xpath(
-          '//div[@class="EsYwYP7LNa"]/span[@class="-soJAyMJBd"]/span[@class="_2XJ6yiRp5w"]'
-        )
-      );
-      let prevCity = await city.getText();
-      await city.click();
-
-      let inputField = await driver.findElement(
-        By.xpath('//div[@class="_1U2ErCeoqP"]//input[@class="_2JDvXzYsUI"]')
-      );
-      await inputField.sendKeys(Key.CONTROL, 'a', Key.NULL, Key.BACK_SPACE);
-
-      let query = ['х', 'в', 'а', 'л', 'ы', 'н', 'с', 'к'];
-      for (i = 0; i < query.length; i++) {
-        await inputField.sendKeys(query[i]);
-        await driver.sleep(30);
-      }
-
-      let suggest = await driver.wait(
-        until.elementLocated(
-          By.xpath('//div[@class="_229JDbp_Z8" and text()="Хвалынск"]')
-        ),
-        2000,
-        "Quick suggests aren't found"
-      );
-      await driver.wait(
-        until.elementIsVisible(suggest),
-        3000,
-        'Cities suggests list is not visible'
-      );
-      await suggest.click();
-      await driver.actions().sendKeys(Key.ESCAPE);
-      await driver.sleep(500);
-      city = await driver.wait(
-        until.elementLocated(
-          By.xpath(
-            '//div[@class="EsYwYP7LNa"]/span[@class="-soJAyMJBd"]/span[@class="_2XJ6yiRp5w"]'
-          )
-        ),
-        5000,
-        'Failed to locate new city value'
-      );
-      await driver.wait(
-        until.elementIsVisible(city),
-        3000,
-        'City is not visible'
-      );
-
-      let cityName = await city.getText();
+      await driver.get('https://beru.ru/');
+      let homePage = new HomePage(driver);
+      let prevCity = await homePage.getDeliveryCityName();
+      await homePage.clickDeliveryCity();
+      await homePage.enterCityAndClickSuggest('хвалынск');
+      await homePage.closePopupWindow();
+      let cityName = await homePage.getDeliveryCityName();
       cityName.should.equal(
         prevCity,
         'The city has been changed despite cancellation'
@@ -602,102 +481,23 @@ describe('City selection flow', function() {
   });
 
   it('Check the delivery city is correct after authentification', async function() {
-    await driver.get('https://beru.ru/');
     try {
-      //Change delivery city
-      let city = await driver.findElement(
-        By.xpath(
-          '//div[@class="EsYwYP7LNa"]/span[@class="-soJAyMJBd"]/span[@class="_2XJ6yiRp5w"]'
-        )
-      );
-      await city.click();
-
-      let inputField = await driver.findElement(
-        By.xpath('//div[@class="_1U2ErCeoqP"]//input[@class="_2JDvXzYsUI"]')
-      );
-      await inputField.sendKeys(Key.CONTROL, 'a', Key.NULL, Key.BACK_SPACE);
-
-      let query = ['х', 'в', 'а', 'л', 'ы', 'н', 'с', 'к'];
-      for (i = 0; i < query.length; i++) {
-        await inputField.sendKeys(query[i]);
-        await driver.sleep(30);
-      }
-
-      let suggest = await driver.wait(
-        until.elementLocated(
-          By.xpath('//div[@class="_229JDbp_Z8" and text()="Хвалынск"]')
-        ),
-        2000,
-        "Quick suggests aren't found"
-      );
-      await driver.wait(
-        until.elementIsVisible(suggest),
-        3000,
-        'Cities suggests list is not visible'
-      );
-      await suggest.click();
-
-      let okBtn = await driver.wait(
-        until.elementLocated(
-          By.xpath('//span[@class="_2w0qPDYwej" and text()="Хорошо"]')
-        ),
-        4000,
-        'OK button is not found'
-      );
-      await driver.wait(
-        until.elementIsVisible(okBtn),
-        4000,
-        'OK button is not visible'
-      );
-      okBtn.click();
-      await driver.sleep(2000);
+      await driver.get('https://beru.ru/');
+      let homePage = new HomePage(driver);
+      await homePage.changeDeliveryCity('хвалынск');
 
       //Authentification flow
-      await driver.findElement(By.className('_3odNv2Dw2n')).click();
-      let loginField = await driver.wait(
-        until.elementLocated(By.id('passp-field-login')),
-        10000,
-        'Failed to locate login field in the DOM'
+      await homePage.clickProfileButton();
+      let authPage = new AuthPage(driver);
+      await authPage.authentificateUser(
+        'testmalakhov2019@yandex.ru',
+        '38tnrWW!QiNRqJv'
       );
-      await driver.wait(
-        until.elementIsVisible(loginField),
-        10000,
-        'Login field is not visible'
-      );
-      await loginField.sendKeys('testmalakhov2019@yandex.ru', Key.RETURN);
-
-      let passField = await driver.wait(
-        until.elementLocated(By.id('passp-field-passwd')),
-        10000,
-        'Failed to locate password field in the DOM'
-      );
-      await driver.wait(
-        until.elementIsVisible(passField),
-        10000,
-        'Password field is not visible'
-      );
-      await passField.sendKeys('38tnrWW!QiNRqJv', Key.RETURN);
-
-      await driver.sleep(2000);
-      await driver.get('https://beru.ru/my/settings?track=menu');
+      await homePage.goToSettings();
 
       //Validate city
-      let profileCity = await driver
-        .findElement(
-          By.xpath(
-            '//div[@id="region"]//span[contains(@class,"_3ioN70chUh")]/span[contains(@class,"_3l-uEDOaBN")]'
-          )
-        )
-        .getText();
-
-      let cityName = await driver
-        .findElement(
-          By.xpath(
-            '//div[@class="EsYwYP7LNa"]/span[@class="-soJAyMJBd"]/span[@class="_2XJ6yiRp5w"]'
-          )
-        )
-        .getText();
-
+      let profileCity = await homePage.getProfileCityValue();
+      let cityName = await homePage.getDeliveryCityName();
       profileCity.should.equal(
         cityName,
         "Profile and selected city don't match"
@@ -726,84 +526,17 @@ describe('City selection flow', function() {
   });
 
   it('Check the city change persists when user interrupts authentification', async function() {
-    await driver.get('https://beru.ru/');
     try {
-      //Change delivery city
-      let city = await driver.findElement(
-        By.xpath(
-          '//div[@class="EsYwYP7LNa"]/span[@class="-soJAyMJBd"]/span[@class="_2XJ6yiRp5w"]'
-        )
-      );
-      await city.click();
-
-      let inputField = await driver.findElement(
-        By.xpath('//div[@class="_1U2ErCeoqP"]//input[@class="_2JDvXzYsUI"]')
-      );
-      await inputField.sendKeys(Key.CONTROL, 'a', Key.NULL, Key.BACK_SPACE);
-
-      let query = ['х', 'в', 'а', 'л', 'ы', 'н', 'с', 'к'];
-      for (i = 0; i < query.length; i++) {
-        await inputField.sendKeys(query[i]);
-        await driver.sleep(30);
-      }
-
-      let suggest = await driver.wait(
-        until.elementLocated(
-          By.xpath('//div[@class="_229JDbp_Z8" and text()="Хвалынск"]')
-        ),
-        2000,
-        "Quick suggests aren't found"
-      );
-      await driver.wait(
-        until.elementIsVisible(suggest),
-        3000,
-        'Cities suggests list is not visible'
-      );
-      await suggest.click();
-
-      let okBtn = await driver.wait(
-        until.elementLocated(
-          By.xpath('//span[@class="_2w0qPDYwej" and text()="Хорошо"]')
-        ),
-        4000,
-        'OK button is not found'
-      );
-      await driver.wait(
-        until.elementIsVisible(okBtn),
-        4000,
-        'OK button is not visible'
-      );
-      okBtn.click();
-      await driver.sleep(2000);
-
-      //Authentification flow
-      await driver.findElement(By.className('_3odNv2Dw2n')).click();
-      let loginField = await driver.wait(
-        until.elementLocated(By.id('passp-field-login')),
-        10000,
-        'Failed to locate login field in the DOM'
-      );
-      await driver.wait(
-        until.elementIsVisible(loginField),
-        10000,
-        'Login field is not visible'
-      );
-      await driver
-        .findElement(By.className('passp-previous-step-button__icon'))
-        .click();
+      await driver.get('https://beru.ru/');
+      let homePage = new HomePage(driver);
+      await homePage.changeDeliveryCity('хвалынск');
+      await homePage.clickProfileButton();
+      let authPage = new AuthPage(driver);
+      await authPage.locateLoginField();
+      await authPage.clickLoginPageBackBtn();
 
       //Validate city
-      let cityName = await driver
-        .wait(
-          until.elementLocated(
-            By.xpath(
-              '//div[@class="EsYwYP7LNa"]/span[@class="-soJAyMJBd"]/span[@class="_2XJ6yiRp5w"]'
-            )
-          ),
-          10000,
-          'The delivery city is not visible'
-        )
-        .getText();
+      let cityName = await homePage.getDeliveryCityName();
       cityName.should.equal('Хвалынск', 'The city changing has been lost');
     } catch (err) {
       await driver.get('https://beru.ru/');
@@ -818,94 +551,23 @@ describe('City selection flow', function() {
   });
 
   it('Check the city persists after reloading the site', async function() {
-    await driver.get('https://beru.ru/');
     try {
-      //Change delivery city
-      let city = await driver.findElement(
-        By.xpath(
-          '//div[@class="EsYwYP7LNa"]/span[@class="-soJAyMJBd"]/span[@class="_2XJ6yiRp5w"]'
-        )
-      );
-      await city.click();
-
-      let inputField = await driver.findElement(
-        By.xpath('//div[@class="_1U2ErCeoqP"]//input[@class="_2JDvXzYsUI"]')
-      );
-      await inputField.sendKeys(Key.CONTROL, 'a', Key.NULL, Key.BACK_SPACE);
-
-      let query = ['х', 'в', 'а', 'л', 'ы', 'н', 'с', 'к'];
-      for (i = 0; i < query.length; i++) {
-        await inputField.sendKeys(query[i]);
-        await driver.sleep(30);
-      }
-
-      let suggest = await driver.wait(
-        until.elementLocated(
-          By.xpath('//div[@class="_229JDbp_Z8" and text()="Хвалынск"]')
-        ),
-        2000,
-        "Quick suggests aren't found"
-      );
-      await driver.wait(
-        until.elementIsVisible(suggest),
-        3000,
-        'Cities suggests list is not visible'
-      );
-      await suggest.click();
-
-      let okBtn = await driver.wait(
-        until.elementLocated(
-          By.xpath('//span[@class="_2w0qPDYwej" and text()="Хорошо"]')
-        ),
-        4000,
-        'OK button is not found'
-      );
-      await driver.wait(
-        until.elementIsVisible(okBtn),
-        4000,
-        'OK button is not visible'
-      );
-      okBtn.click();
-      await driver.sleep(2000);
+      await driver.get('https://beru.ru/');
+      let homePage = new HomePage(driver);
+      await homePage.changeDeliveryCity('хвалынск');
 
       //Authentification flow
-      await driver.findElement(By.className('_3odNv2Dw2n')).click();
-      let loginField = await driver.wait(
-        until.elementLocated(By.id('passp-field-login')),
-        10000,
-        'Failed to locate login field in the DOM'
+      await homePage.clickProfileButton();
+      let authPage = new AuthPage(driver);
+      await authPage.authentificateUser(
+        'testmalakhov2019@yandex.ru',
+        '38tnrWW!QiNRqJv'
       );
-      await driver.wait(
-        until.elementIsVisible(loginField),
-        10000,
-        'Login field is not visible'
-      );
-      await loginField.sendKeys('testmalakhov2019@yandex.ru', Key.RETURN);
-
-      let passField = await driver.wait(
-        until.elementLocated(By.id('passp-field-passwd')),
-        10000,
-        'Failed to locate password field in the DOM'
-      );
-      await driver.wait(
-        until.elementIsVisible(passField),
-        10000,
-        'Password field is not visible'
-      );
-      await passField.sendKeys('38tnrWW!QiNRqJv', Key.RETURN);
-
-      await driver.sleep(2000);
+      await homePage.locateProfileBtn();
       await driver.get('https://beru.ru/');
 
       //Validate city
-      let cityName = await driver
-        .findElement(
-          By.xpath(
-            '//div[@class="EsYwYP7LNa"]/span[@class="-soJAyMJBd"]/span[@class="_2XJ6yiRp5w"]'
-          )
-        )
-        .getText();
-
+      let cityName = await homePage.getDeliveryCityName();
       cityName.should.equal(
         'Хвалынск',
         "Profile and selected city don't match"
@@ -934,96 +596,25 @@ describe('City selection flow', function() {
   });
 
   it('Check the city persists when user logs out', async function() {
-    await driver.get('https://beru.ru/');
     try {
-      //Change delivery city
-      let city = await driver.findElement(
-        By.xpath(
-          '//div[@class="EsYwYP7LNa"]/span[@class="-soJAyMJBd"]/span[@class="_2XJ6yiRp5w"]'
-        )
-      );
-      await city.click();
-
-      let inputField = await driver.findElement(
-        By.xpath('//div[@class="_1U2ErCeoqP"]//input[@class="_2JDvXzYsUI"]')
-      );
-      await inputField.sendKeys(Key.CONTROL, 'a', Key.NULL, Key.BACK_SPACE);
-
-      let query = ['х', 'в', 'а', 'л', 'ы', 'н', 'с', 'к'];
-      for (i = 0; i < query.length; i++) {
-        await inputField.sendKeys(query[i]);
-        await driver.sleep(30);
-      }
-
-      let suggest = await driver.wait(
-        until.elementLocated(
-          By.xpath('//div[@class="_229JDbp_Z8" and text()="Хвалынск"]')
-        ),
-        2000,
-        "Quick suggests aren't found"
-      );
-      await driver.wait(
-        until.elementIsVisible(suggest),
-        3000,
-        'Cities suggests list is not visible'
-      );
-      await suggest.click();
-
-      let okBtn = await driver.wait(
-        until.elementLocated(
-          By.xpath('//span[@class="_2w0qPDYwej" and text()="Хорошо"]')
-        ),
-        4000,
-        'OK button is not found'
-      );
-      await driver.wait(
-        until.elementIsVisible(okBtn),
-        4000,
-        'OK button is not visible'
-      );
-      okBtn.click();
-      await driver.sleep(2000);
+      await driver.get('https://beru.ru/');
+      let homePage = new HomePage(driver);
+      await homePage.changeDeliveryCity('хвалынск');
 
       //Authentification flow
-      await driver.findElement(By.className('_3odNv2Dw2n')).click();
-      let loginField = await driver.wait(
-        until.elementLocated(By.id('passp-field-login')),
-        10000,
-        'Failed to locate login field in the DOM'
+      await homePage.clickProfileButton();
+      let authPage = new AuthPage(driver);
+      await authPage.authentificateUser(
+        'testmalakhov2019@yandex.ru',
+        '38tnrWW!QiNRqJv'
       );
-      await driver.wait(
-        until.elementIsVisible(loginField),
-        10000,
-        'Login field is not visible'
-      );
-      await loginField.sendKeys('testmalakhov2019@yandex.ru', Key.RETURN);
-
-      let passField = await driver.wait(
-        until.elementLocated(By.id('passp-field-passwd')),
-        10000,
-        'Failed to locate password field in the DOM'
-      );
-      await driver.wait(
-        until.elementIsVisible(passField),
-        10000,
-        'Password field is not visible'
-      );
-      await passField.sendKeys('38tnrWW!QiNRqJv', Key.RETURN);
-
-      await driver.sleep(2000);
+      await homePage.locateProfileBtn();
       await driver.get(
         'https://beru.ru/logout?retpath=https%3A%2F%2Fberu.ru%2F%3Floggedin%3D1'
       );
 
       //Validate city
-      let cityName = await driver
-        .findElement(
-          By.xpath(
-            '//div[@class="EsYwYP7LNa"]/span[@class="-soJAyMJBd"]/span[@class="_2XJ6yiRp5w"]'
-          )
-        )
-        .getText();
-
+      let cityName = await homePage.getDeliveryCityName();
       cityName.should.equal(
         'Хвалынск',
         "Profile and selected city don't match"
