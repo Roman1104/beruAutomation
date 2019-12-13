@@ -22,6 +22,17 @@ class HomePage {
     this.cityChangeBackBtnLocator = By.xpath(
       '//span[@class="_2w0qPDYwej" and text()="Назад"]'
     );
+    this.catalogueMenuBtnLocator = By.className('_301_b-LBxR');
+    this.catalogueSectionLocator = sectionName => {
+      return By.xpath(
+        `//li//span[@class="_19FPGVzRi9" and text()="${sectionName}"]`
+      );
+    };
+    this.catalogueSubsectionLocator = subsectionName => {
+      return By.xpath(
+        `//span[@class="_27Pcf7STDj" and text() = "${subsectionName}"]`
+      );
+    };
   }
 
   async locateProfileBtn() {
@@ -117,7 +128,7 @@ class HomePage {
   async locateCityChangeBackBtn() {
     try {
       let backBtn = await this.driver.wait(
-        until.elementLocated(this.cityChangeBackBtnLocator),
+        until.elementLocated(this.catalogueMenuBtnLocator),
         3000,
         'Back button is not found'
       );
@@ -127,6 +138,60 @@ class HomePage {
         'Back button is not visible'
       );
       return backBtn;
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  async locateCatalogueButton() {
+    try {
+      let catalogueBtn = await this.driver.wait(
+        until.elementLocated(this.catalogueMenuBtnLocator),
+        10000,
+        'Back button is not found'
+      );
+      await this.driver.wait(
+        until.elementIsVisible(catalogueBtn),
+        10000,
+        'Back button is not visible'
+      );
+      return catalogueBtn;
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  async locateCatalogueSection(sectionName) {
+    try {
+      let catalogueSection = await this.driver.wait(
+        until.elementLocated(this.catalogueSectionLocator(sectionName)),
+        3000,
+        'Back button is not found'
+      );
+      await this.driver.wait(
+        until.elementIsVisible(catalogueSection),
+        3000,
+        'Back button is not visible'
+      );
+      return catalogueSection;
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  async locateCatalogueSubsection(subsectionName) {
+    try {
+      let catalogueSubsection = await this.driver.wait(
+        until.elementLocated(this.catalogueSubsectionLocator(subsectionName)),
+        3000,
+        'Back button is not found'
+      );
+      await this.driver.wait(
+        until.elementIsVisible(catalogueSubsection),
+        3000,
+        'Back button is not visible'
+      );
+      return catalogueSubsection;
     } catch (err) {
       throw err;
     }
@@ -170,17 +235,17 @@ class HomePage {
   }
 
   async goToSettings() {
-    try {
-      await this.driver.get('https://beru.ru/my/settings?track=menu');
-    } catch (err) {
-      throw err;
-    }
+    await this.driver.get('https://beru.ru/my/settings?track=menu');
   }
 
   async getProfileCityValue() {
-    await this.goToSettings();
-    let profileCity = await this.locateProfileCity();
-    return await profileCity.getText();
+    try {
+      await this.goToSettings();
+      let profileCity = await this.locateProfileCity();
+      return await profileCity.getText();
+    } catch (err) {
+      throw err;
+    }
   }
 
   async getDeliveryCityName() {
@@ -215,7 +280,7 @@ class HomePage {
     }
   }
 
-  async getAllSuggestsList() {
+  async getAllCitySuggestsList() {
     try {
       return await this.driver.findElements(By.className('_229JDbp_Z8'));
     } catch (err) {
@@ -320,6 +385,28 @@ class HomePage {
       throw err;
     }
   }
+
+  async openCatalogueItem(section, subsection) {
+    try {
+      let catalogueBtn = await this.locateCatalogueButton();
+      await catalogueBtn.click();
+      let selectedSection = await this.locateCatalogueSection(section);
+      let listItemPos = await selectedSection.getRect();
+      const actions = this.driver.actions({ bridge: true });
+      await actions
+        .move({
+          x: 1,
+          y: 1,
+          duration: 500,
+          origin: selectedSection,
+        })
+        .perform();
+      let selectedSubsection = await this.locateCatalogueSubsection(subsection);
+      await selectedSubsection.click();
+    } catch (err) {
+      throw err;
+    }
+  }
 }
 
 class AuthPage {
@@ -338,12 +425,12 @@ class AuthPage {
     try {
       let loginField = await this.driver.wait(
         until.elementLocated(this.loginFieldLocator),
-        5000,
+        10000,
         'Failed to locate login field in the DOM'
       );
       await this.driver.wait(
         until.elementIsVisible(loginField),
-        5000,
+        10000,
         'Login field is not visible'
       );
       return loginField;
@@ -374,12 +461,12 @@ class AuthPage {
     try {
       let submitLoginBtn = await this.driver.wait(
         until.elementLocated(this.submitLoginBtnLocator),
-        5000,
+        10000,
         'Failed to locate submit login button in the DOM'
       );
       await this.driver.wait(
         until.elementIsVisible(submitLoginBtn),
-        5000,
+        10000,
         'Submit login button is not visible'
       );
       return submitLoginBtn;
@@ -505,6 +592,7 @@ class AuthPage {
     try {
       await this.submitLoginWithKeyboard(login);
       await this.submitPasswordWithKeyboard(password);
+      await this.driver.sleep(500);
       let curUrl = await this.driver.getCurrentUrl();
       if (!curUrl.includes('https://beru.ru/')) {
         let errorText = await this.getErrorMessageText();
@@ -514,9 +602,46 @@ class AuthPage {
       throw err;
     }
   }
+
+  async logOut() {
+    await this.driver.get(
+      'https://beru.ru/logout?retpath=https%3A%2F%2Fberu.ru%2F%3Floggedin%3D1'
+    );
+  }
+}
+
+class CataloguePage {
+  constructor(driver) {
+    this.driver = driver;
+  }
+  getPageName() {
+    return 'Catalogue';
+  }
+}
+
+class CartPage {
+  constructor(driver) {
+    this.driver = driver;
+  }
+
+  getPageName() {
+    return 'Cart';
+  }
+}
+
+class CheckoutPage {
+  constructor(driver) {
+    this.driver = driver;
+  }
+  getPageName() {
+    return 'Checkout';
+  }
 }
 
 module.exports = {
   HomePage,
   AuthPage,
+  CataloguePage,
+  CartPage,
+  CheckoutPage,
 };
