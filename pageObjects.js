@@ -166,12 +166,12 @@ class HomePage {
       let catalogueSection = await this.driver.wait(
         until.elementLocated(this.catalogueSectionLocator(sectionName)),
         3000,
-        'Back button is not found'
+        'Catalogue section is not found'
       );
       await this.driver.wait(
         until.elementIsVisible(catalogueSection),
         3000,
-        'Back button is not visible'
+        'Catalogue section is not visible'
       );
       return catalogueSection;
     } catch (err) {
@@ -184,12 +184,12 @@ class HomePage {
       let catalogueSubsection = await this.driver.wait(
         until.elementLocated(this.catalogueSubsectionLocator(subsectionName)),
         3000,
-        'Back button is not found'
+        'Catalogue subsection is not found'
       );
       await this.driver.wait(
         until.elementIsVisible(catalogueSubsection),
         3000,
-        'Back button is not visible'
+        'Catalogue subsection is not visible'
       );
       return catalogueSubsection;
     } catch (err) {
@@ -613,28 +613,358 @@ class AuthPage {
 class CataloguePage {
   constructor(driver) {
     this.driver = driver;
+    this.itemContainerLocator = By.xpath(
+      '//div[@class="_3rWYRsam78"]//div[@class="_1gDHxFdZ7E"]'
+    );
+    this.itemPriceLocator = By.xpath(
+      '/div//*[@data-auto="price"]/span/span[1]'
+    );
+    this.priceFilterMinValueInputLoc = By.xpath(
+      '//div[@data-auto="filter-range-glprice"]/span[@data-auto="filter-range-min"]//input'
+    );
+    this.priceFilterMaxValueInputLoc = By.xpath(
+      '//div[@data-auto="filter-range-glprice"]/span[@data-auto="filter-range-max"]//input'
+    );
+    this.noItemsMessageLocator = By.xpath(
+      '//div[@class="_2QyTfBZosp _26mXJDBxtH" and text() = "Нет подходящих товаров"]'
+    );
+    this.nextPageBtnLocator = By.xpath(
+      '//div[@data-auto="pagination-next"]/span'
+    );
+    this.itemAddToCartBtnLocator = By.className('_2w0qPDYwej');
+    this.cartButtonLocator = By.xpath(
+      '//span[@class="_1LEwf9X1Gy" and text()="Корзина"]'
+    );
   }
-  getPageName() {
-    return 'Catalogue';
+
+  async locateItems() {
+    try {
+      let items = await this.driver.wait(
+        until.elementsLocated(this.itemContainerLocator),
+        10000,
+        'No catalogue items found'
+      );
+      await this.driver.wait(
+        until.elementIsVisible(items[0]),
+        5000,
+        'Catalogue items are not visible'
+      );
+      return items;
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  async locatePriceFilterMinValueInput() {
+    try {
+      let priceFilterMinValueInput = await this.driver.wait(
+        until.elementLocated(this.priceFilterMinValueInputLoc),
+        10000,
+        'Price filter min value input is not found'
+      );
+      await this.driver.wait(
+        until.elementIsVisible(priceFilterMinValueInput),
+        5000,
+        'Price filter min value input is not visible'
+      );
+      return priceFilterMinValueInput;
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  async locatePriceFilterMaxValueInput() {
+    try {
+      let priceFilterMaxValueInput = await this.driver.wait(
+        until.elementLocated(this.priceFilterMaxValueInputLoc),
+        10000,
+        'Price filter max value input is not found'
+      );
+      await this.driver.wait(
+        until.elementIsVisible(priceFilterMaxValueInput),
+        5000,
+        'Price filter max value input is not visible'
+      );
+      return priceFilterMaxValueInput;
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  async locateNextPageButton() {
+    try {
+      await this.locateItems();
+      let nextPageBtn = await this.driver.findElements(this.nextPageBtnLocator);
+      return nextPageBtn;
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  async locateNoItemsMessage() {
+    try {
+      let noItemsMessage = await this.driver.wait(
+        until.elementLocated(this.noItemsMessageLocator),
+        10000,
+        '"No items" message is not found'
+      );
+      await this.driver.wait(
+        until.elementIsVisible(noItemsMessage),
+        5000,
+        '"No items" message is not visible'
+      );
+      return noItemsMessage;
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  async locateCartButton() {
+    try {
+      let cartButton = await this.driver.wait(
+        until.elementLocated(this.cartButtonLocator),
+        10000,
+        'Cart button is not found'
+      );
+      await this.driver.wait(
+        until.elementIsVisible(cartButton),
+        5000,
+        'PCart button is not visible'
+      );
+      return cartButton;
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  async setPriceFilterMinValue(amount) {
+    try {
+      let oldItems = await this.locateItems();
+      let priceMinFilter = await this.locatePriceFilterMinValueInput();
+      await priceMinFilter.clear().sendKeys(amount);
+      await this.driver.wait(
+        until.stalenessOf(oldItems[0]),
+        10000,
+        'Failed to refresh items list'
+      );
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  async setPriceFilterMaxValue(amount) {
+    try {
+      let oldItems = await this.locateItems();
+      let priceMaxFilter = await this.locatePriceFilterMaxValueInput();
+      await priceMaxFilter.clear().sendKeys(amount);
+      await this.driver.wait(
+        until.stalenessOf(oldItems[0]),
+        10000,
+        'Failed to refresh items list'
+      );
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  async getItemPrice(item) {
+    try {
+      let priceText = await item.findElement(itemPriceLocator).getText();
+      let price = Number(priceText.replace(/[^\d]/g, ''));
+      return price;
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  async goToNextPage(nextBtn) {
+    try {
+      let oldItems = await this.locateItems();
+      await nextBtn.click();
+      await this.driver.wait(
+        until.stalenessOf(oldItems[0]),
+        10000,
+        'The items of the previous page remain visible'
+      );
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  async addItemToCart(item) {
+    try {
+      await item.findElement(this.itemAddToCartBtnLocator).click();
+      await this.driver.wait(
+        async function() {
+          let btnText;
+          try {
+            btnText = await item
+              .findElement(this.itemAddToCartBtnLocator)
+              .getText();
+          } catch {
+            return false;
+          }
+          return btnText == 'В корзине';
+        },
+        10000,
+        "The Add to cart button state wasn't changed"
+      );
+      await this.driver.sleep(2000);
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  async goToCart() {
+    try {
+      let cartButton = await this.locateCartButton();
+      await cartButton.click();
+    } catch (err) {
+      throw err;
+    }
   }
 }
 
 class CartPage {
   constructor(driver) {
     this.driver = driver;
+    this.freeDeliveryRemainderLocator = By.className('voCFmXKfcL');
+    this.checkoutButtonLocator = By.xpath(
+      '//span[@class="_2w0qPDYwej" and text()="Перейти к оформлению"]'
+    );
   }
 
-  getPageName() {
-    return 'Cart';
+  async locateFreeDeliveryRemainder() {
+    try {
+      let remainder = await this.driver.wait(
+        until.elementLocated(this.freeDeliveryRemainderLocator),
+        10000,
+        'Free delivery remainder is not found'
+      );
+      await this.driver.wait(
+        until.elementIsVisible(remainder),
+        5000,
+        'Free delivery remainder is not visible'
+      );
+      return remainder;
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  async locateCheckoutButton() {
+    try {
+      let checkoutBtn = await this.driver.wait(
+        until.elementLocated(this.checkoutButtonLocator),
+        10000,
+        'Checkout button is not found'
+      );
+      await this.driver.wait(
+        until.elementIsVisible(checkoutButtonLocator),
+        5000,
+        'Checkout button is not visible'
+      );
+      return checkoutBtn;
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  async getFreeDeliveryRemainderValue() {
+    try {
+      let remainder = await this.locateFreeDeliveryRemainder();
+      let remainderText = await remainder.getText();
+      return Number(remainderText.replace(/[^\d]/g, ''));
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  async clickCheckoutButton() {
+    try {
+      let checkoutBtn = await this.locateCheckoutButton();
+      await checkoutBtn.click();
+    } catch (err) {
+      throw err;
+    }
   }
 }
 
 class CheckoutPage {
   constructor(driver) {
     this.driver = driver;
+    this.deliveryOptionLocator = By.xpath(
+      '//*[@class="s5wsZMKoea" and @data-auto="DELIVERY"]'
+    );
+    this.selectedOptionCostLocator = By.xpath(
+      '//label[@class="_32Rl_SqO9- checked"]//div[@class="_1IG4X84z4y"]/span[2]'
+    );
+    this.totalCostLocator = By.className('_1oBlNqVHPq');
   }
-  getPageName() {
-    return 'Checkout';
+
+  async locateDeliveryOption() {
+    try {
+      let option = await this.driver.wait(
+        until.elementLocated(deliveryOptionLocator),
+        10000,
+        'The delivery option is not found'
+      );
+      await this.driver.wait(
+        until.elementIsVisible(option),
+        5000,
+        'Delivery option is not visible'
+      );
+      return option;
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  async locateTotalCost() {
+    try {
+      let total = await this.driver.wait(
+        until.elementLocated(totalCostLocator),
+        10000,
+        'Total cost is not found'
+      );
+      await this.driver.wait(
+        until.elementIsVisible(total),
+        5000,
+        'Total cost is not visible'
+      );
+      return total;
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  async clickDeliveryOption() {
+    try {
+      let option = await this.locateDeliveryOption();
+      await option.click();
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  async getDeliveryOptionCost() {
+    try {
+      let deliveryCostText = await this.driver
+        .findElement(selectedOptionCostLocator)
+        .getText();
+      return Number(deliveryCostText.replace(/[^\d]/g, ''));
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  async getTotalCostValue() {
+    try {
+      let totalCost = await this.locateTotalCost();
+      return Number(totalCost.replace(/[^\d]/g, ''));
+    } catch (err) {
+      throw err;
+    }
   }
 }
 

@@ -12,7 +12,7 @@ const assert = chai.assert;
 const should = chai.should();
 const expect = chai.expect;
 
-/* describe('Beru.ru authorization flow', function() {
+describe('Beru.ru authorization flow', function() {
   this.timeout(0); //отключаем таймауты (2 секунды) для тестов
   let driver;
 
@@ -326,9 +326,9 @@ const expect = chai.expect;
     await driver.manage().deleteAllCookies();
     await driver.get('https://beru.ru/');
   });
-}); */
+});
 
-/* describe('City selection flow', function() {
+describe('City selection flow', function() {
   this.timeout(0); //отключаем таймауты (2 секунды) для тестов
   let driver;
 
@@ -641,7 +641,7 @@ const expect = chai.expect;
     await driver.manage().deleteAllCookies();
     await driver.get('https://beru.ru/');
   });
-}); */
+});
 
 describe('Order management flow', function() {
   this.timeout(0); //отключаем таймауты (2 секунды) для тестов
@@ -656,7 +656,7 @@ describe('Order management flow', function() {
   });
 
   after(async function() {
-    //await driver.close();
+    await driver.close();
   });
 
   it('Check the electric toothbrushes section contains items', async function() {
@@ -667,10 +667,9 @@ describe('Order management flow', function() {
         'Красота и гигиена',
         'Электрические зубные щетки'
       );
-      /* let items = await driver.findElements(
-        By.xpath('//div[@class="_3rWYRsam78"]//div[@class="_1gDHxFdZ7E"]')
-      );
-      items.length.should.be.above(0, 'There is no items on the page'); */
+      let cataloguePage = new CataloguePage(driver);
+      let items = await cataloguePage.locateItems();
+      items.length.should.be.above(0, 'There is no items on the page');
     } catch (err) {
       await driver.get('https://beru.ru/');
       assert.fail(err);
@@ -680,49 +679,24 @@ describe('Order management flow', function() {
     await driver.get('https://beru.ru/');
   });
 
-  /* it('Check the price range filter works properly', async function() {
-    await driver.get(
-      'https://beru.ru/catalog/elektricheskie-zubnye-shchetki/80961/list?hid=278374&track=pieces'
-    );
-
+  it('Check the price range filter works properly', async function() {
     try {
+      await driver.get(
+        'https://beru.ru/catalog/elektricheskie-zubnye-shchetki/80961/list?hid=278374&track=pieces'
+      );
+      let cataloguePage = new CataloguePage(driver);
+
       //fill the filter values and wait till filtered items load
-      let oldItem = await driver.findElement(
-        By.xpath('//*[@data-auto="price"]/span/span[1]')
-      );
-      await driver
-        .findElement(
-          By.xpath(
-            '//div[@data-auto="filter-range-glprice"]/span[@data-auto="filter-range-min"]//input'
-          )
-        )
-        .sendKeys('999');
+      await cataloguePage.setPriceFilterMinValue(999);
+      await cataloguePage.setPriceFilterMaxValue(1999);
 
-      await driver
-        .findElement(
-          By.xpath(
-            '//div[@data-auto="filter-range-glprice"]/span[@data-auto="filter-range-max"]//input'
-          )
-        )
-        .sendKeys('1999');
-
-      await driver.wait(
-        until.stalenessOf(oldItem),
-        10000,
-        'Failed to refresh items list'
-      );
-
-      let items = await driver.wait(
-        until.elementsLocated(By.xpath('//*[@data-auto="price"]/span/span[1]')),
-        4000,
-        'New items are not located'
-      );
-      let nextBtn;
+      let items = await cataloguePage.locateItems();
+      let nextPageBtn;
       //loop through all items and check the filter is applied
       if (items.length > 0) {
         do {
           for (i = 0; i < items.length; i++) {
-            let price = Number((await items[i].getText()).replace(/ /g, ''));
+            let price = await cataloguePage.getPrice(items[i]);
             price.should.be.within(
               999,
               1999,
@@ -730,32 +704,15 @@ describe('Order management flow', function() {
             );
           }
           //if there is more than one page find and click Next button
-          nextBtn = await driver.findElements(
-            By.xpath('//div[@data-auto="pagination-next"]/span')
-          );
-          if (nextBtn.length == 1) {
-            await nextBtn[0].click();
-            await driver.wait(
-              until.stalenessOf(items[0]),
-              10000,
-              'The items of the previous page remain visible'
-            );
-            items = await driver.wait(
-              until.elementsLocated(
-                By.xpath('//*[@data-auto="price"]/span/span[1]')
-              ),
-              4000,
-              'Next page items are not located'
-            );
+          nextPageBtn = await cataloguePage.locateNextPageButton();
+          if (nextPageBtn.length == 1) {
+            await cataloguePage.goToNextPage(nextPageBtn[0]);
+            items = await cataloguePage.locateItems();
           }
-        } while (nextBtn.length == 1);
+        } while (nextPageBtn.length == 1);
       } else {
         //if no matches found check that appropriate message is displayed
-        await driver.findElement(
-          By.xpath(
-            '//div[@class="_2QyTfBZosp _26mXJDBxtH" and text() = "Нет подходящих товаров"]'
-          )
-        );
+        await cataloguePage.locateNoItemsMessage();
       }
     } catch (err) {
       await driver.get('https://beru.ru/');
@@ -767,46 +724,14 @@ describe('Order management flow', function() {
   });
 
   it('Check the error message is displayed when filter is set incorrectly', async function() {
-    await driver.get(
-      'https://beru.ru/catalog/elektricheskie-zubnye-shchetki/80961/list?hid=278374&track=pieces'
-    );
-
     try {
-      //fill the filter values and wait till filtered items load
-      let oldItem = await driver.findElement(
-        By.xpath('//*[@data-auto="price"]/span/span[1]')
+      await driver.get(
+        'https://beru.ru/catalog/elektricheskie-zubnye-shchetki/80961/list?hid=278374&track=pieces'
       );
-      await driver
-        .findElement(
-          By.xpath(
-            '//div[@data-auto="filter-range-glprice"]/span[@data-auto="filter-range-min"]//input'
-          )
-        )
-        .sendKeys('1999');
-
-      await driver
-        .findElement(
-          By.xpath(
-            '//div[@data-auto="filter-range-glprice"]/span[@data-auto="filter-range-max"]//input'
-          )
-        )
-        .sendKeys('999');
-
-      await driver.wait(
-        until.stalenessOf(oldItem),
-        10000,
-        'Failed to refresh items list'
-      );
-
-      await driver.wait(
-        until.elementLocated(
-          By.xpath(
-            '//div[@class="_2QyTfBZosp _26mXJDBxtH" and text() = "Нет подходящих товаров"]'
-          )
-        ),
-        10000,
-        'Error message is not displayed'
-      );
+      let cataloguePage = new CataloguePage(driver);
+      await cataloguePage.setPriceFilterMinValue(1999);
+      await cataloguePage.setPriceFilterMaxValue(999);
+      await cataloguePage.locateNoItemsMessage();
     } catch (err) {
       await driver.get('https://beru.ru/');
       assert.fail(err);
@@ -817,103 +742,31 @@ describe('Order management flow', function() {
   });
 
   it('Check the item can be successfully added to cart from items list', async function() {
-    await driver.get(
-      'https://beru.ru/catalog/elektricheskie-zubnye-shchetki/80961/list?hid=278374&track=pieces'
-    );
-
     try {
-      //set the filter and wait until the items list is refreshed
-      let oldItem = await driver.wait(
-        until.elementLocated(By.xpath('//*[@data-auto="price"]/span/span[1]')),
-        15000,
-        'Items list is not loading'
+      await driver.get(
+        'https://beru.ru/catalog/elektricheskie-zubnye-shchetki/80961/list?hid=278374&track=pieces'
       );
-      await driver
-        .findElement(
-          By.xpath(
-            '//div[@data-auto="filter-range-glprice"]/span[@data-auto="filter-range-min"]//input'
-          )
-        )
-        .sendKeys('999');
-      await driver
-        .findElement(
-          By.xpath(
-            '//div[@data-auto="filter-range-glprice"]/span[@data-auto="filter-range-max"]//input'
-          )
-        )
-        .sendKeys('1999');
-      await driver.wait(
-        until.stalenessOf(oldItem),
-        10000,
-        'Failed to refresh items list'
-      );
+      let cataloguePage = new CataloguePage(driver);
+      await cataloguePage.setPriceFilterMinValue(999);
+      await cataloguePage.setPriceFilterMaxValue(1999);
 
       //add the penultimate brush to cart
-      let nextBtn;
+      let nextPageBtn;
       do {
-        nextBtn = await driver.findElements(
-          By.xpath('//div[@data-auto="pagination-next"]/span')
-        );
-        if (nextBtn.length == 1) {
-          await nextBtn[0].click();
-          await driver.wait(
-            until.stalenessOf(nextBtn[0]),
-            10000,
-            'The items of the previous page remain visible'
-          );
+        nextPageBtn = await cataloguePage.locateNextPageButton();
+        if (nextPageBtn.length == 1) {
+          await cataloguePage.goToNextPage(nextPageBtn[0]);
         }
-      } while (nextBtn.length == 1);
+      } while (nextPageBtn.length == 1);
 
-      let itemsList = await driver.findElements(
-        By.xpath('//div[@class="_3rWYRsam78"]//div[@class="_1gDHxFdZ7E"]')
-      );
+      let itemsList = await cataloguePage.locateItems();
       let curItem = itemsList[itemsList.length - 2];
-      await driver.wait(
-        until.elementIsVisible(curItem),
-        10000,
-        'Item is not visible'
-      );
-      let priceText = await curItem
-        .findElement(By.className('_1pTV0mQZJz _3LMhEMfZeH'))
-        .getText();
-      let price = Number(priceText.replace(/[^\d]/g, ''));
-      let oldPriceText = await curItem
-        .findElements(By.xpath('//span[@data-auto="old-price"]/span[1]'))
-        .getText();
-      let oldPrice = Number(oldPriceText.replace(/ /g, ''));
-      await curItem.findElement(By.className('_2w0qPDYwej')).click();
-      await driver.wait(
-        async function() {
-          let btnText;
-          try {
-            btnText = await curItem
-              .findElement(By.className('_2w0qPDYwej'))
-              .getText();
-          } catch {
-            return false;
-          }
-          return btnText == 'В корзине';
-        },
-        10000,
-        "The Add to cart button state wasn't changed"
-      );
+      let price = await cataloguePage.getItemPrice(curItem);
+      await cataloguePage.addItemToCart(curItem);
 
-      //go to Cart
-      await driver.sleep(2000);
-      await driver
-        .findElement(
-          By.xpath('//span[@class="_1LEwf9X1Gy" and text()="Корзина"]')
-        )
-        .click();
-
-      let remainderText = await driver.wait(
-        until.elementLocated(By.className('voCFmXKfcL')),
-        10000,
-        'Failed to locate free delivery threshold'
-      );
-      await driver.sleep(1000);
-      remainderText = await remainderText.getText();
-      let remainderValue = Number(remainderText.replace(/[^\d]/g, ''));
+      await cataloguePage.goToCart();
+      let cartPage = new CartPage(driver);
+      let remainderValue = await cartPage.getFreeDeliveryRemainderValue();
       remainderValue.should.equal(
         2499 - price,
         'The amount left for free delivery is calculated incorrectly'
@@ -930,132 +783,36 @@ describe('Order management flow', function() {
   });
 
   it('Check the delivery is included in total price', async function() {
-    await driver.get(
-      'https://beru.ru/catalog/elektricheskie-zubnye-shchetki/80961/list?hid=278374&track=pieces'
-    );
-
     try {
-      //set the filter and wait until the items list is refreshed
-      let oldItem = await driver.wait(
-        until.elementLocated(By.xpath('//*[@data-auto="price"]/span/span[1]')),
-        15000,
-        'Items list is not loading'
+      await driver.get(
+        'https://beru.ru/catalog/elektricheskie-zubnye-shchetki/80961/list?hid=278374&track=pieces'
       );
-      await driver
-        .findElement(
-          By.xpath(
-            '//div[@data-auto="filter-range-glprice"]/span[@data-auto="filter-range-min"]//input'
-          )
-        )
-        .sendKeys('999');
-      await driver
-        .findElement(
-          By.xpath(
-            '//div[@data-auto="filter-range-glprice"]/span[@data-auto="filter-range-max"]//input'
-          )
-        )
-        .sendKeys('1999');
-      await driver.wait(
-        until.stalenessOf(oldItem),
-        10000,
-        'Failed to refresh items list'
-      );
+      let cataloguePage = new CataloguePage(driver);
+
+      await cataloguePage.setPriceFilterMinValue(1999);
+      await cataloguePage.setPriceFilterMaxValue(999);
 
       //add the penultimate brush to cart
-      let nextBtn;
+      let nextPageBtn;
       do {
-        nextBtn = await driver.findElements(
-          By.xpath('//div[@data-auto="pagination-next"]/span')
-        );
-        if (nextBtn.length == 1) {
-          await nextBtn[0].click();
-          await driver.wait(
-            until.stalenessOf(nextBtn[0]),
-            10000,
-            'The items of the previous page remain visible'
-          );
+        nextPageBtn = await cataloguePage.locateNextPageButton();
+        if (nextPageBtn.length == 1) {
+          await cataloguePage.goToNextPage(nextPageBtn[0]);
         }
-      } while (nextBtn.length == 1);
+      } while (nextPageBtn.length == 1);
 
-      let itemsList = await driver.findElements(
-        By.xpath('//div[@class="_3rWYRsam78"]//div[@class="_1gDHxFdZ7E"]')
-      );
+      let itemsList = await cataloguePage.locateItems();
       let curItem = itemsList[itemsList.length - 2];
-      await driver.wait(
-        until.elementIsVisible(curItem),
-        10000,
-        'Item is not visible'
-      );
-      let priceText = await curItem
-        .findElement(By.className('_1pTV0mQZJz _3LMhEMfZeH'))
-        .getText();
-      let price = Number(priceText.replace(/[^\d]/g, ''));
-      let oldPriceText = await curItem
-        .findElements(By.xpath('//span[@data-auto="old-price"]/span[1]'))
-        .getText();
-      let oldPrice = Number(oldPriceText.replace(/ /g, ''));
-      await curItem.findElement(By.className('_2w0qPDYwej')).click();
-      await driver.wait(
-        async function() {
-          let btnText;
-          try {
-            btnText = await curItem
-              .findElement(By.className('_2w0qPDYwej'))
-              .getText();
-          } catch {
-            return false;
-          }
-          return btnText == 'В корзине';
-        },
-        10000,
-        "The Add to cart button state wasn't changed"
-      );
+      let price = await cataloguePage.getItemPrice(curItem);
+      await cataloguePage.addItemToCart(curItem);
 
-      //go to Cart
-      await driver.sleep(2000);
-      await driver
-        .findElement(
-          By.xpath('//span[@class="_1LEwf9X1Gy" and text()="Корзина"]')
-        )
-        .click();
-
-      await driver
-        .wait(
-          until.elementLocated(
-            By.xpath(
-              '//span[@class="_2w0qPDYwej" and text()="Перейти к оформлению"]'
-            )
-          ),
-          10000,
-          'The checkout button is not found'
-        )
-        .click();
-      let delivery = await driver.wait(
-        until.elementLocated(
-          By.xpath('//*[@class="s5wsZMKoea" and @data-auto="DELIVERY"]')
-        ),
-        10000,
-        'The delivery options are not found'
-      );
-      await driver.wait(
-        until.elementIsVisible(delivery),
-        5000,
-        'Delivery options are not visible'
-      );
-      await delivery.click();
-      let deliveryCostText = await driver
-        .findElement(
-          By.xpath(
-            '//label[@class="_32Rl_SqO9- checked"]//div[@class="_1IG4X84z4y"]/span[2]'
-          )
-        )
-        .getText();
-      let deliveryCost = Number(deliveryCostText.replace(/[^\d]/g, ''));
-      let totalText = await driver
-        .findElement(By.className('_1oBlNqVHPq'))
-        .getText();
-      let total = Number(totalText.replace(/[^\d]/g, ''));
-      total.should.equal(
+      await cataloguePage.goToCart();
+      let cartPage = new CartPage(driver);
+      await cartPage.clickCheckoutButton();
+      let checkoutPage = new CheckoutPage(driver);
+      await checkoutPage.clickDeliveryOption();
+      let totalCost = await checkoutPage.getTotalCostValue();
+      totalCost.should.equal(
         price + deliveryCost,
         'Total sum is calculated incorrectly'
       );
@@ -1068,5 +825,5 @@ describe('Order management flow', function() {
     //return to initial state
     await driver.manage().deleteAllCookies();
     await driver.get('https://beru.ru/');
-  }); */
+  });
 });
