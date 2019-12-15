@@ -616,9 +616,7 @@ class CataloguePage {
     this.itemContainerLocator = By.xpath(
       '//div[@class="_3rWYRsam78"]//div[@class="_1gDHxFdZ7E"]'
     );
-    this.itemPriceLocator = By.xpath(
-      '/div//*[@data-auto="price"]/span/span[1]'
-    );
+    this.itemPriceLocator = By.xpath('.//*[@data-auto="price"]/span/span[1]');
     this.priceFilterMinValueInputLoc = By.xpath(
       '//div[@data-auto="filter-range-glprice"]/span[@data-auto="filter-range-min"]//input'
     );
@@ -626,7 +624,7 @@ class CataloguePage {
       '//div[@data-auto="filter-range-glprice"]/span[@data-auto="filter-range-max"]//input'
     );
     this.noItemsMessageLocator = By.xpath(
-      '//div[@class="_2QyTfBZosp _26mXJDBxtH" and text() = "Нет подходящих товаров"]'
+      '//div[@class="_2QyTfBZosp _26mXJDBxtH" and text() = "Именно такого товара сейчас нет"]'
     );
     this.nextPageBtnLocator = By.xpath(
       '//div[@data-auto="pagination-next"]/span'
@@ -741,7 +739,13 @@ class CataloguePage {
     try {
       let oldItems = await this.locateItems();
       let priceMinFilter = await this.locatePriceFilterMinValueInput();
-      await priceMinFilter.clear().sendKeys(amount);
+      await priceMinFilter.sendKeys(
+        Key.CONTROL,
+        'a',
+        Key.NULL,
+        Key.BACK_SPACE,
+        amount
+      );
       await this.driver.wait(
         until.stalenessOf(oldItems[0]),
         10000,
@@ -756,7 +760,13 @@ class CataloguePage {
     try {
       let oldItems = await this.locateItems();
       let priceMaxFilter = await this.locatePriceFilterMaxValueInput();
-      await priceMaxFilter.clear().sendKeys(amount);
+      await priceMaxFilter.sendKeys(
+        Key.CONTROL,
+        'a',
+        Key.NULL,
+        Key.BACK_SPACE,
+        amount
+      );
       await this.driver.wait(
         until.stalenessOf(oldItems[0]),
         10000,
@@ -769,7 +779,7 @@ class CataloguePage {
 
   async getItemPrice(item) {
     try {
-      let priceText = await item.findElement(itemPriceLocator).getText();
+      let priceText = await item.findElement(this.itemPriceLocator).getText();
       let price = Number(priceText.replace(/[^\d]/g, ''));
       return price;
     } catch (err) {
@@ -793,14 +803,13 @@ class CataloguePage {
 
   async addItemToCart(item) {
     try {
-      await item.findElement(this.itemAddToCartBtnLocator).click();
+      let btnLocator = this.itemAddToCartBtnLocator;
+      await item.findElement(btnLocator).click();
       await this.driver.wait(
         async function() {
           let btnText;
           try {
-            btnText = await item
-              .findElement(this.itemAddToCartBtnLocator)
-              .getText();
+            btnText = await item.findElement(btnLocator).getText();
           } catch {
             return false;
           }
@@ -828,7 +837,7 @@ class CataloguePage {
 class CartPage {
   constructor(driver) {
     this.driver = driver;
-    this.freeDeliveryRemainderLocator = By.className('voCFmXKfcL');
+    this.freeDeliveryRemainderLocator = By.className('_2YHTmhZmt4');
     this.checkoutButtonLocator = By.xpath(
       '//span[@class="_2w0qPDYwej" and text()="Перейти к оформлению"]'
     );
@@ -860,7 +869,7 @@ class CartPage {
         'Checkout button is not found'
       );
       await this.driver.wait(
-        until.elementIsVisible(checkoutButtonLocator),
+        until.elementIsVisible(checkoutBtn),
         5000,
         'Checkout button is not visible'
       );
@@ -896,8 +905,8 @@ class CheckoutPage {
     this.deliveryOptionLocator = By.xpath(
       '//*[@class="s5wsZMKoea" and @data-auto="DELIVERY"]'
     );
-    this.selectedOptionCostLocator = By.xpath(
-      '//label[@class="_32Rl_SqO9- checked"]//div[@class="_1IG4X84z4y"]/span[2]'
+    this.deliveryCostLocator = By.xpath(
+      '//div[@class="s5wsZMKoea"]//div[@class="_1IG4X84z4y"]/span[2]'
     );
     this.totalCostLocator = By.className('_1oBlNqVHPq');
   }
@@ -905,7 +914,7 @@ class CheckoutPage {
   async locateDeliveryOption() {
     try {
       let option = await this.driver.wait(
-        until.elementLocated(deliveryOptionLocator),
+        until.elementLocated(this.deliveryOptionLocator),
         10000,
         'The delivery option is not found'
       );
@@ -923,7 +932,7 @@ class CheckoutPage {
   async locateTotalCost() {
     try {
       let total = await this.driver.wait(
-        until.elementLocated(totalCostLocator),
+        until.elementLocated(this.totalCostLocator),
         10000,
         'Total cost is not found'
       );
@@ -950,7 +959,7 @@ class CheckoutPage {
   async getDeliveryOptionCost() {
     try {
       let deliveryCostText = await this.driver
-        .findElement(selectedOptionCostLocator)
+        .findElement(this.deliveryCostLocator)
         .getText();
       return Number(deliveryCostText.replace(/[^\d]/g, ''));
     } catch (err) {
@@ -961,7 +970,8 @@ class CheckoutPage {
   async getTotalCostValue() {
     try {
       let totalCost = await this.locateTotalCost();
-      return Number(totalCost.replace(/[^\d]/g, ''));
+      let totalCostText = await totalCost.getText();
+      return Number(totalCostText.replace(/[^\d]/g, ''));
     } catch (err) {
       throw err;
     }

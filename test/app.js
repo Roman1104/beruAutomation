@@ -656,7 +656,7 @@ describe('Order management flow', function() {
   });
 
   after(async function() {
-    await driver.close();
+    //await driver.close();
   });
 
   it('Check the electric toothbrushes section contains items', async function() {
@@ -683,6 +683,7 @@ describe('Order management flow', function() {
     try {
       await driver.get(
         'https://beru.ru/catalog/elektricheskie-zubnye-shchetki/80961/list?hid=278374&track=pieces'
+        //'file:///D:/Win10Files/Downloads/%D0%9A%D1%83%D0%BF%D0%B8%D1%82%D1%8C%20%D0%AD%D0%BB%D0%B5%D0%BA%D1%82%D1%80%D0%B8%D1%87%D0%B5%D1%81%D0%BA%D0%B8%D0%B5%20%D0%B7%D1%83%D0%B1%D0%BD%D1%8B%D0%B5%20%D1%89%D0%B5%D1%82%D0%BA%D0%B8%20%D0%BF%D0%BE%20%D0%BD%D0%B8%D0%B7%D0%BA%D0%B8%D0%BC%20%D1%86%D0%B5%D0%BD%D0%B0%D0%BC%20%D0%B2%20%D0%B8%D0%BD%D1%82%D0%B5%D1%80%D0%BD%D0%B5%D1%82-%D0%BC%D0%B0%D0%B3%D0%B0%D0%B7%D0%B8%D0%BD%D0%B0%D1%85%20-%20%D0%BC%D0%B0%D1%80%D0%BA%D0%B5%D1%82%D0%BF%D0%BB%D0%B5%D0%B9%D1%81%20%D0%91%D0%B5%D1%80%D1%83.html'
       );
       let cataloguePage = new CataloguePage(driver);
 
@@ -696,7 +697,7 @@ describe('Order management flow', function() {
       if (items.length > 0) {
         do {
           for (i = 0; i < items.length; i++) {
-            let price = await cataloguePage.getPrice(items[i]);
+            let price = await cataloguePage.getItemPrice(items[i]);
             price.should.be.within(
               999,
               1999,
@@ -715,7 +716,7 @@ describe('Order management flow', function() {
         await cataloguePage.locateNoItemsMessage();
       }
     } catch (err) {
-      await driver.get('https://beru.ru/');
+      //await driver.get('https://beru.ru/');
       assert.fail(err);
     }
 
@@ -789,8 +790,8 @@ describe('Order management flow', function() {
       );
       let cataloguePage = new CataloguePage(driver);
 
-      await cataloguePage.setPriceFilterMinValue(1999);
-      await cataloguePage.setPriceFilterMaxValue(999);
+      await cataloguePage.setPriceFilterMinValue(999);
+      await cataloguePage.setPriceFilterMaxValue(1999);
 
       //add the penultimate brush to cart
       let nextPageBtn;
@@ -808,9 +809,11 @@ describe('Order management flow', function() {
 
       await cataloguePage.goToCart();
       let cartPage = new CartPage(driver);
+      await cartPage.locateFreeDeliveryRemainder();
       await cartPage.clickCheckoutButton();
       let checkoutPage = new CheckoutPage(driver);
       await checkoutPage.clickDeliveryOption();
+      let deliveryCost = await checkoutPage.getDeliveryOptionCost();
       let totalCost = await checkoutPage.getTotalCostValue();
       totalCost.should.equal(
         price + deliveryCost,
