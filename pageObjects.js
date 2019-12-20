@@ -8,7 +8,7 @@ class HomePage {
       '//div[@id="region"]//span[contains(@class,"_3ioN70chUh")]/span[contains(@class,"_3l-uEDOaBN")]'
     );
     this.deliveryCityLocator = By.xpath(
-      '//div[@class="EsYwYP7LNa"]/span[@class="-soJAyMJBd"]/span[@class="_2XJ6yiRp5w"]'
+      '//span[@data-auto="region-form-opener" and @class="zB1fta3NQ5"]'
     );
     this.cityInputLocator = By.xpath(
       '//div[@class="_1U2ErCeoqP"]//input[@class="_2JDvXzYsUI"]'
@@ -899,6 +899,19 @@ class CartPage {
   }
 }
 
+class ItemPage {
+  constructor(driver) {
+    this.driver = driver;
+    this.deliveryOptionLocator = By.xpath(
+      '//*[@class="s5wsZMKoea" and @data-auto="DELIVERY"]'
+    );
+    this.deliveryCostLocator = By.xpath(
+      '//div[@class="s5wsZMKoea"]//div[@class="_1IG4X84z4y"]/span[2]'
+    );
+    this.totalCostLocator = By.className('_1oBlNqVHPq');
+  }
+}
+
 class CheckoutPage {
   constructor(driver) {
     this.driver = driver;
@@ -982,6 +995,7 @@ module.exports = {
   HomePage,
   AuthPage,
   CataloguePage,
+  ItemPage,
   CartPage,
   CheckoutPage,
 };
